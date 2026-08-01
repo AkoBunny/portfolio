@@ -1,0 +1,157 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+
+const projects = await getCollection('projects');
+
+const allCategories = [...new Set(projects.flatMap((p) => p.data.category))];
+---
+<Layout>
+	<h1>Projects</h1>
+
+	<div id="controls">
+		<div id="category-filters">
+			<button class="filter-btn active" data-category="all">All</button>
+			{allCategories.map((cat) => (
+				<button class="filter-btn" data-category={cat}>{cat}</button>
+			))}
+		</div>
+
+		<select id="sort-select">
+			<option value="featured">Featured</option>
+			<option value="date-desc">Date (Newest first)</option>
+			<option value="date-asc">Date (Oldest first)</option>
+		</select>
+	</div>
+
+	<div id="projects-list">
+		{projects.map((project) => (
+			<a
+				href={`/portfolio/projects/${project.id}`}
+				class="project-card"
+				data-categories={project.data.category.join(',')}
+				data-featured={project.data.featured}
+				data-date={project.data.date.toISOString()}
+			>
+				<h2>{project.data.title}</h2>
+				<p>{project.data.category.join(', ')}</p>
+				<p>{project.data.status} · {project.data.type}</p>
+				<p class="date">{project.data.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+			</a>
+		))}
+	</div>
+</Layout>
+
+<style>
+	#controls {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 1rem;
+		margin-bottom: 1.5rem;
+	}
+
+	#category-filters {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+	}
+
+	.filter-btn {
+		padding: 0.4rem 0.9rem;
+		border-radius: 999px;
+		border: 1px solid #444;
+		background: transparent;
+		color: #f0f0f0;
+		cursor: pointer;
+	}
+
+	.filter-btn.active {
+		background: #8ab4ff;
+		color: #14161a;
+		border-color: #8ab4ff;
+	}
+
+	#sort-select {
+		padding: 0.4rem 0.6rem;
+		background: #1e2127;
+		color: #f0f0f0;
+		border: 1px solid #444;
+		border-radius: 6px;
+	}
+
+	#projects-list {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
+
+	.project-card {
+		display: block;
+		padding: 1rem;
+		border: 1px solid #333;
+		border-radius: 8px;
+		text-decoration: none;
+		color: inherit;
+	}
+
+	.project-card:hover {
+		border-color: #8ab4ff;
+	}
+
+	.project-card.hidden {
+		display: none;
+	}
+
+	.date {
+		color: #999;
+		font-size: 0.9rem;
+	}
+</style>
+
+<script>
+	const filterButtons = document.querySelectorAll('.filter-btn');
+	const sortSelect = document.querySelector('#sort-select') as HTMLSelectElement;
+	const list = document.querySelector('#projects-list') as HTMLElement;
+	const cards = Array.from(document.querySelectorAll('.project-card')) as HTMLElement[];
+
+	let activeCategory = 'all';
+
+	function applyFilter() {
+		for (const card of cards) {
+			const cats = card.dataset.categories?.split(',') ?? [];
+			const matches = activeCategory === 'all' || cats.includes(activeCategory);
+			card.classList.toggle('hidden', !matches);
+		}
+	}
+
+	function applySort() {
+		const sorted = [...cards].sort((a, b) => {
+			if (sortSelect.value === 'featured') {
+				const aFeatured = a.dataset.featured === 'true';
+				const bFeatured = b.dataset.featured === 'true';
+				return Number(bFeatured) - Number(aFeatured);
+			}
+			const aDate = new Date(a.dataset.date ?? '').getTime();
+			const bDate = new Date(b.dataset.date ?? '').getTime();
+			return sortSelect.value === 'date-desc' ? bDate - aDate : aDate - bDate;
+		});
+		for (const card of sorted) {
+			list.appendChild(card);
+		}
+	}
+
+	filterButtons.forEach((btn) => {
+		btn.addEventListener('click', () => {
+			filterButtons.forEach((b) => b.classList.remove('active'));
+			btn.classList.add('active');
+			activeCategory = (btn as HTMLElement).dataset.category ?? 'all';
+			applyFilter();
+		});
+	});
+
+	sortSelect.addEventListener('change', applySort);
+
+	applySort();
+</script>
