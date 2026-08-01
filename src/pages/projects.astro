@@ -5,6 +5,7 @@ import Layout from '../layouts/Layout.astro';
 const projects = await getCollection('projects');
 
 const allCategories = [...new Set(projects.flatMap((p) => p.data.category))];
+const allTools = [...new Set(projects.flatMap((p) => p.data.tools))];
 ---
 <Layout>
 	<h1>Projects</h1>
@@ -24,12 +25,20 @@ const allCategories = [...new Set(projects.flatMap((p) => p.data.category))];
 		</select>
 	</div>
 
+	<div id="tool-filters">
+		<button class="filter-btn tool-btn active" data-tool="all">All Tools</button>
+		{allTools.map((tool) => (
+			<button class="filter-btn tool-btn" data-tool={tool}>{tool}</button>
+		))}
+	</div>
+
 	<div id="projects-list">
 		{projects.map((project) => (
 			<a
 				href={`/portfolio/projects/${project.id}`}
 				class="project-card"
 				data-categories={project.data.category.join(',')}
+				data-tools={project.data.tools.join(',')}
 				data-featured={project.data.featured}
 				data-date={project.data.date.toISOString()}
 			>
@@ -73,6 +82,17 @@ const allCategories = [...new Set(projects.flatMap((p) => p.data.category))];
 		border-color: #8ab4ff;
 	}
 
+	.tool-btn.active {
+		background: #ff9d5c;
+		border-color: #ff9d5c;
+	}
+
+	#tool-filters {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+	}
+
 	#sort-select {
 		padding: 0.4rem 0.6rem;
 		background: #1e2127;
@@ -85,6 +105,7 @@ const allCategories = [...new Set(projects.flatMap((p) => p.data.category))];
 		display: flex;
 		flex-direction: column;
 		gap: 1rem;
+		margin-top: 1.5rem;
 	}
 
 	.project-card {
@@ -111,18 +132,22 @@ const allCategories = [...new Set(projects.flatMap((p) => p.data.category))];
 </style>
 
 <script>
-	const filterButtons = document.querySelectorAll('.filter-btn');
 	const sortSelect = document.querySelector('#sort-select') as HTMLSelectElement;
 	const list = document.querySelector('#projects-list') as HTMLElement;
 	const cards = Array.from(document.querySelectorAll('.project-card')) as HTMLElement[];
 
-	let activeCategory = 'all';
+let activeCategory = sessionStorage.getItem('activeCategory') ?? 'all';
+	let activeTool = sessionStorage.getItem('activeTool') ?? 'all';
+	const savedSort = sessionStorage.getItem('sortValue');
+	if (savedSort) sortSelect.value = savedSort;
 
 	function applyFilter() {
 		for (const card of cards) {
 			const cats = card.dataset.categories?.split(',') ?? [];
-			const matches = activeCategory === 'all' || cats.includes(activeCategory);
-			card.classList.toggle('hidden', !matches);
+			const tools = card.dataset.tools?.split(',') ?? [];
+			const categoryMatches = activeCategory === 'all' || cats.includes(activeCategory);
+			const toolMatches = activeTool === 'all' || tools.includes(activeTool);
+			card.classList.toggle('hidden', !(categoryMatches && toolMatches));
 		}
 	}
 
@@ -142,16 +167,46 @@ const allCategories = [...new Set(projects.flatMap((p) => p.data.category))];
 		}
 	}
 
-	filterButtons.forEach((btn) => {
+const categoryButtons = document.querySelectorAll('.filter-btn:not(.tool-btn)');
+	const toolButtons = document.querySelectorAll('.tool-btn');
+
+categoryButtons.forEach((btn) => {
 		btn.addEventListener('click', () => {
-			filterButtons.forEach((b) => b.classList.remove('active'));
+			categoryButtons.forEach((b) => b.classList.remove('active'));
 			btn.classList.add('active');
 			activeCategory = (btn as HTMLElement).dataset.category ?? 'all';
+			sessionStorage.setItem('activeCategory', activeCategory);
 			applyFilter();
 		});
 	});
 
-	sortSelect.addEventListener('change', applySort);
+toolButtons.forEach((btn) => {
+		btn.addEventListener('click', () => {
+			toolButtons.forEach((b) => b.classList.remove('active'));
+			btn.classList.add('active');
+			activeTool = (btn as HTMLElement).dataset.tool ?? 'all';
+			sessionStorage.setItem('activeTool', activeTool);
+			applyFilter();
+		});
+	});
 
+sortSelect.addEventListener('change', () => {
+		sessionStorage.setItem('sortValue', sortSelect.value);
+		applySort();
+	});
+
+categoryButtons.forEach((btn) => {
+		if ((btn as HTMLElement).dataset.category === activeCategory) {
+			categoryButtons.forEach((b) => b.classList.remove('active'));
+			btn.classList.add('active');
+		}
+	});
+	toolButtons.forEach((btn) => {
+		if ((btn as HTMLElement).dataset.tool === activeTool) {
+			toolButtons.forEach((b) => b.classList.remove('active'));
+			btn.classList.add('active');
+		}
+	});
+	applyFilter();
 	applySort();
 </script>

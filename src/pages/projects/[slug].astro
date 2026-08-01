@@ -14,6 +14,7 @@ const { project } = Astro.props;
 const { Content } = await render(project);
 ---
 <Layout>
+	<a href="/portfolio/projects">← Back to Projects</a>
 	<h1>{project.data.title}</h1>
 	<p>Status: {project.data.status} | Type: {project.data.type}</p>
 	<p>Category: {project.data.category.join(', ')}</p>
