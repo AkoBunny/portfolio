@@ -1,7 +1,59 @@
 ---
+import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
+
+const allProjects = await getCollection('projects');
+const featuredProjects = allProjects.filter((p) => p.data.featured);
 ---
 <Layout>
-	<h1>Hi, I'm Ako</h1>
-	<p>This is my game design portfolio.</p>
+	<section id="intro">
+		<h1>Hi, I'm Ako</h1>
+		<p>
+			I'm a game design student focused at ARU. This site showcases all my project work, from
+			finished pieces to in-progress experiments.
+		</p>
+		<p>
+			<a href="/portfolio/resume.pdf">Resume</a> ·
+			<a href="mailto:ako@pawlinska.pl">Email me</a>
+		</p>
+	</section>
+
+	<section id="featured">
+		<h2>Featured Projects</h2>
+		<div id="featured-list">
+			{featuredProjects.map((project) => (
+				<a href={`/portfolio/projects/${project.id}`} class="project-card">
+					<h3>{project.data.title}</h3>
+					<p>{project.data.category.join(', ')}</p>
+				</a>
+			))}
+		</div>
+		<p><a href="/portfolio/projects">See all projects →</a></p>
+	</section>
 </Layout>
+
+<style>
+	#intro {
+		margin-bottom: 3rem;
+	}
+
+	#featured-list {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+		margin: 1.5rem 0;
+	}
+
+	.project-card {
+		display: block;
+		padding: 1rem;
+		border: 1px solid #333;
+		border-radius: 8px;
+		text-decoration: none;
+		color: inherit;
+	}
+
+	.project-card:hover {
+		border-color: #8ab4ff;
+	}
+</style>

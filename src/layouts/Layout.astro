@@ -9,6 +9,10 @@
 		<title>Astro Basics</title>
 	</head>
 	<body>
+		<nav>
+			<a href="/portfolio">Home</a>
+			<a href="/portfolio/projects">Projects</a>
+		</nav>
 		<main>
 			<slot />
 		</main>
@@ -41,7 +45,24 @@
 		line-height: 1.2;
 	}
 
-	a {
-		color: #8ab4ff;
+:global(a:link),
+	:global(a:visited) {
+		color: #ff9d5c;
+	}
+
+	nav {
+		display: flex;
+		gap: 1.5rem;
+		padding: 1.25rem 1.5rem;
+		border-bottom: 1px solid #2a2d33;
+	}
+
+	nav a {
+		text-decoration: none;
+		font-weight: 600;
+	}
+
+	nav a:hover {
+		text-decoration: underline;
 	}
 </style>
