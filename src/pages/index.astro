@@ -6,6 +6,12 @@ const allProjects = await getCollection('projects');
 const featuredProjects = allProjects.filter((p) => p.data.featured);
 ---
 <Layout>
+<div class="reef-viewport">
+	<div class="reef-gradient"></div>
+	<div class="bubbles-container" id="bubbles-container"></div>
+</div>
+
+<div class="page-content">
 	<section id="intro">
 		<h1>Hi, I'm Ako</h1>
 		<p>
@@ -28,6 +34,12 @@ const featuredProjects = allProjects.filter((p) => p.data.featured);
 		</div>
 		<p><a href="/portfolio/projects">See all projects →</a></p>
 	</section>
+
+	<div style="height: 150vh;"></div>
+	<div class="reef-floor-marker">
+		<p>You've reached the reef floor</p>
+	</div>
+</div>
 </Layout>
 
 <style>
@@ -54,4 +66,143 @@ const featuredProjects = allProjects.filter((p) => p.data.featured);
 	.project-card:hover {
 		border-color: #8ab4ff;
 	}
+
+	.reef-viewport {
+		position: fixed;
+		inset: 0;
+		z-index: -1;
+		overflow: hidden;
+	}
+
+	.reef-gradient {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 250vh;
+		background: linear-gradient(180deg, #FDF3EF 0%, #FBE0DD 20%, #E8B8C4 45%, #9CC4C9 70%, #2f5f66 100%);
+	}
+
+	.bubbles-container {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+	}
+
+	:global(.bubble) {
+        position: absolute;
+        border-radius: 50%;
+        background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.2) 60%, rgba(160, 210, 215, 0.4) 100%);
+        border: 1.5px solid rgba(255, 255, 255, 0.85);
+        box-shadow: 0 0 6px rgba(0, 0, 0, 0.1), inset 0 0 6px rgba(255, 255, 255, 0.6);
+    }
+
+	.page-content {
+		position: relative;
+		max-width: 800px;
+		margin: 0 auto;
+		padding: 2rem 1.5rem;
+	}
+
+	.page-content h1,
+	.page-content h2,
+	.page-content h3,
+	.page-content p {
+		color: #4a2f2f;
+	}
+
+	.reef-floor-marker {
+		height: 60vh;
+		display: flex;
+		align-items: flex-end;
+		justify-content: center;
+		padding-bottom: 3rem;
+	}
+
+	.reef-floor-marker p {
+		color: #eaf6f6 !important;
+		font-weight: bold;
+	}
+
 </style>
+
+<script>
+const container = document.querySelector('#bubbles-container') as HTMLElement;
+	const gradient = document.querySelector('.reef-gradient') as HTMLElement;
+
+	interface Bubble {
+		el: HTMLElement;
+		size: number;
+		x: number;
+		y: number;
+		phase: number;
+		wobbleAmp: number;
+		wobbleFreq: number;
+		speed: number;
+	}
+
+	function randomize(b: Bubble, startBelowScreen: boolean) {
+		b.size = Math.pow(Math.random(), 2) * 130 + 6;
+		const edgeBias = b.size > 70 ? Math.random() * 15 + (Math.random() < 0.5 ? 0 : 80) : Math.random() * 95;
+		b.x = edgeBias;
+		b.y = startBelowScreen ? 105 + Math.random() * 15 : Math.random() * 120 - 10;
+		b.phase = Math.random() * Math.PI * 2;
+		b.wobbleFreq = 0.4 + (b.size / 90) * 1.4 + Math.random() * 0.3;
+		b.wobbleAmp = 3 + (b.size / 90) * 10 + Math.random() * 3;
+		b.speed = (b.size * 0.09 + 1.5) * (0.8 + Math.random() * 0.4);
+
+		const opacity = 0.25 + (b.size / 90) * 0.55 + Math.random() * 0.1;
+		b.el.style.width = `${b.size}px`;
+		b.el.style.height = `${b.size}px`;
+		b.el.style.opacity = `${Math.min(opacity, 0.95)}`;
+		b.el.style.zIndex = `${Math.round(b.size)}`;
+	}
+
+	const bubbles: Bubble[] = [];
+	const BUBBLE_COUNT = 35;
+
+	for (let i = 0; i < BUBBLE_COUNT; i++) {
+		const el = document.createElement('span');
+		el.className = 'bubble';
+		container.appendChild(el);
+		const b: Bubble = { el, size: 0, x: 0, y: 0, phase: 0, wobbleAmp: 0, wobbleFreq: 0, speed: 0 };
+		randomize(b, false);
+		bubbles.push(b);
+	}
+
+	let lastTime = performance.now();
+	let lastScrollY = window.scrollY;
+	let scrollBoost = 0;
+
+	function tick(now: number) {
+		const dt = (now - lastTime) / 1000;
+		lastTime = now;
+		const seconds = now / 1000;
+
+		scrollBoost *= 0.92; // fades back toward zero each frame
+
+		for (const b of bubbles) {
+			b.y -= (b.speed + scrollBoost) * dt * 3;
+			if (b.y < -15) {
+				randomize(b, true);
+			}
+			const wobble = Math.sin(seconds * b.wobbleFreq + b.phase) * b.wobbleAmp;
+			b.el.style.top = `${b.y}vh`;
+			b.el.style.left = `calc(${b.x}% + ${wobble}px)`;
+		}
+
+		requestAnimationFrame(tick);
+	}
+
+	requestAnimationFrame(tick);
+
+	window.addEventListener('scroll', () => {
+		const scrollY = window.scrollY;
+		const delta = scrollY - lastScrollY;
+		lastScrollY = scrollY;
+		scrollBoost += delta * 0.06;
+		gradient.style.transform = `translateY(${-scrollY * 0.3}px)`;
+	});
+</script>
