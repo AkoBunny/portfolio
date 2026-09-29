@@ -11,14 +11,114 @@ export async function getStaticPaths() {
 }
 
 const { project } = Astro.props;
-const { Content } = await render(project);
+const { Content, headings } = await render(project);
+const sections = headings.filter((h) => h.depth === 2);
 ---
 <Layout>
 	<a href="/portfolio/projects">← Back to Projects</a>
-	<h1>{project.data.title}</h1>
-	<p>Status: {project.data.status} | Type: {project.data.type}</p>
-	<p>Category: {project.data.category.join(', ')}</p>
-	<p>Tools: {project.data.tools.join(', ')}</p>
 
-	<Content />
+	<div class="project-layout">
+		<aside class="toc">
+			<p class="toc-label">Skip to...</p>
+			<ul>
+				{sections.map((heading) => (
+					<li><a href={`#${heading.slug}`}>{heading.text}</a></li>
+				))}
+			</ul>
+		</aside>
+
+		<div class="project-main">
+			<h1>{project.data.title}</h1>
+
+			<div class="info-block">
+				{project.data.genre && <p><strong>Genre:</strong> {project.data.genre}</p>}
+				<p><strong>Tools:</strong> {project.data.tools.join(', ')}</p>
+				{project.data.role && <p><strong>Role:</strong> {project.data.role}</p>}
+				{project.data.studio && <p><strong>Studio:</strong> {project.data.studio}</p>}
+				{project.data.teamSize && <p><strong>Team size:</strong> {project.data.teamSize}</p>}
+				<p><strong>Status:</strong> {project.data.status}</p>
+				<p><strong>Category:</strong> {project.data.category.join(', ')}</p>
+				{project.data.playableLink && (
+					<p><a class="playable-link" href={project.data.playableLink}>Play the build →</a></p>
+				)}
+			</div>
+
+			<div class="case-study">
+				<Content />
+			</div>
+		</div>
+	</div>
 </Layout>
+
+<style>
+	.project-layout {
+		display: flex;
+		gap: 2rem;
+		align-items: flex-start;
+		margin-top: 1.5rem;
+	}
+
+	.toc {
+		position: sticky;
+		top: 1.5rem;
+		flex: 0 0 180px;
+		border: 1px solid #333;
+		border-radius: 8px;
+		padding: 1rem;
+	}
+
+	.toc-label {
+		margin: 0 0 0.5rem;
+		font-weight: 600;
+		font-size: 0.85rem;
+		color: #999;
+		text-transform: uppercase;
+	}
+
+	.toc ul {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	.toc a {
+		font-size: 0.9rem;
+	}
+
+	.project-main {
+		flex: 1;
+		min-width: 0;
+	}
+
+	.info-block {
+		border: 1px solid #333;
+		border-radius: 8px;
+		padding: 1rem 1.25rem;
+		margin: 1rem 0 2rem;
+		display: flex;
+		flex-direction: column;
+		gap: 0.4rem;
+	}
+
+	.playable-link {
+		font-weight: 600;
+	}
+
+	:global(.case-study h2) {
+		margin-top: 2.5rem;
+	}
+
+	@media (max-width: 700px) {
+		.project-layout {
+			flex-direction: column;
+		}
+		.toc {
+			position: static;
+			flex: none;
+			width: 100%;
+		}
+	}
+</style>
