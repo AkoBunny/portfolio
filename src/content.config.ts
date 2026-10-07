@@ -18,6 +18,7 @@ const projects = defineCollection({
 		teamSize: z.string().optional(),
 		playableLink: z.string().optional(),
 		coverImage: z.string().optional(),
+		coverImagePosition: z.string().optional(),
 	}),
 });
 
