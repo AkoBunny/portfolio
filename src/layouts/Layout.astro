@@ -9,10 +9,23 @@
 		<title>Astro Basics</title>
 	</head>
 	<body>
-		<nav>
-			<a href="/portfolio">Home</a>
-			<a href="/portfolio/projects">Projects</a>
-		</nav>
+		<header class="site-header">
+			<a href="/portfolio" class="brand">
+				<span class="brand-avatar">A</span>
+				<span class="brand-text">
+					<span class="brand-name">Ako</span>
+					<span class="brand-role">Game Design Student</span>
+				</span>
+			</a>
+			<nav>
+				<a href="/portfolio">Home</a>
+				<a href="/portfolio/projects">Projects</a>
+			</nav>
+			<div class="header-links">
+				<a href="/portfolio/resume.pdf">Resume</a>
+				<a href="mailto:ako@pawlinska.pl">Email</a>
+			</div>
+		</header>
 		<main>
 			<slot />
 		</main>
@@ -20,11 +33,17 @@
 </html>
 
 <style>
-	html,
+		html {
+		margin: 0;
+		width: 100%;
+		scroll-padding-top: 90px;
+		scroll-behavior: smooth;
+	}
+
 	body {
 		margin: 0;
 		width: 100%;
-		height: 100%;
+		min-height: 100vh;
 	}
 
 	body {
@@ -50,11 +69,61 @@
 		color: #ff9d5c;
 	}
 
+	.site-header {
+		position: sticky;
+		top: 0;
+		z-index: 20;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1.5rem;
+		flex-wrap: wrap;
+		padding: 0.85rem 1.5rem;
+		background: #14161a;
+		border-bottom: 2px solid #ff9d5c;
+	}
+
+	.brand {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		text-decoration: none;
+	}
+
+	.brand-avatar {
+		width: 42px;
+		height: 42px;
+		border-radius: 50%;
+		background: #ff9d5c;
+		color: #14161a;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-weight: 700;
+		font-size: 1.1rem;
+		flex-shrink: 0;
+	}
+
+	.brand-text {
+		display: flex;
+		flex-direction: column;
+		line-height: 1.2;
+	}
+
+	.brand-name {
+		font-weight: 700;
+		font-size: 1.05rem;
+		color: #f0f0f0;
+	}
+
+	.brand-role {
+		font-size: 0.75rem;
+		color: #999;
+	}
+
 	nav {
 		display: flex;
 		gap: 1.5rem;
-		padding: 1.25rem 1.5rem;
-		border-bottom: 1px solid #2a2d33;
 	}
 
 	nav a {
@@ -64,5 +133,15 @@
 
 	nav a:hover {
 		text-decoration: underline;
+	}
+
+	.header-links {
+		display: flex;
+		gap: 1.25rem;
+	}
+
+	.header-links a {
+		font-size: 0.85rem;
+		font-weight: 600;
 	}
 </style>
