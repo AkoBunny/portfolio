@@ -1,6 +1,6 @@
 ---
-title: "Before/After Slider Case Study"
-hook: "Testing a sliding comparison view for showing level design iteration."
+title: "Level Blockout Study"
+hook: "Iterating on a level layout through blockout passes and playtest feedback."
 category: ["Level Design"]
 status: "In Progress"
 type: "Coursework"

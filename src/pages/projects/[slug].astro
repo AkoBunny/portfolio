@@ -13,6 +13,8 @@ export async function getStaticPaths() {
 const { project } = Astro.props;
 const { Content, headings } = await render(project);
 const sections = headings.filter((h) => h.depth === 2);
+const hasMedia = Boolean(project.data.heroVideo || project.data.coverImage);
+const dateLabel = project.data.date.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
 ---
 <Layout>
 	<a href="/portfolio/projects">← Back to Projects</a>
@@ -20,17 +22,34 @@ const sections = headings.filter((h) => h.depth === 2);
 	<div class="project-main">
 		<h1>{project.data.title}</h1>
 
-		<div class="info-block">
-			{project.data.genre && <p><strong>Genre:</strong> {project.data.genre}</p>}
-			<p><strong>Tools:</strong> {project.data.tools.join(', ')}</p>
-			{project.data.role && <p><strong>Role:</strong> {project.data.role}</p>}
-			{project.data.studio && <p><strong>Studio:</strong> {project.data.studio}</p>}
-			{project.data.teamSize && <p><strong>Team size:</strong> {project.data.teamSize}</p>}
-			<p><strong>Status:</strong> {project.data.status}</p>
-			<p><strong>Category:</strong> {project.data.category.join(', ')}</p>
-			{project.data.playableLink && (
-				<p><a class="playable-link" href={project.data.playableLink}>Play the build →</a></p>
-			)}
+		<div class:list={['project-hero', { 'has-media': hasMedia }]}>
+			{project.data.heroVideo ? (
+				<div class="video-embed hero-media">
+					<iframe
+						src={`https://www.youtube-nocookie.com/embed/${project.data.heroVideo}`}
+						title={project.data.title}
+						allowfullscreen
+					></iframe>
+				</div>
+			) : project.data.coverImage ? (
+				<img class="hero-media hero-image" src={project.data.coverImage} alt="" />
+			) : null}
+
+			<div class="hero-info">
+				<ul class="info-list">
+					{project.data.genre && <li><span class="label">Genre:</span> {project.data.genre}</li>}
+					<li><span class="label">Category:</span> {project.data.category.join(', ')}</li>
+					<li><span class="label">Status:</span> {project.data.status}</li>
+					<li><span class="label">Tools:</span> {project.data.tools.join(', ')}</li>
+					{project.data.role && <li><span class="label">Role:</span> {project.data.role}</li>}
+					{project.data.studio && <li><span class="label">Studio:</span> {project.data.studio}</li>}
+					{project.data.teamSize && <li><span class="label">Team size:</span> {project.data.teamSize}</li>}
+					<li><span class="label">Date:</span> {dateLabel}</li>
+				</ul>
+				{project.data.playableLink && (
+					<a class="play-btn" href={project.data.playableLink}>Play the build</a>
+				)}
+			</div>
 		</div>
 
 		<div class="case-study">
@@ -55,21 +74,106 @@ const sections = headings.filter((h) => h.depth === 2);
 		margin-top: 1.5rem;
 	}
 
-	.info-block {
-		border: 1px solid #333;
-		border-radius: 8px;
-		padding: 1rem 1.25rem;
-		margin: 1rem 0 2rem;
-		display: flex;
-		flex-direction: column;
-		gap: 0.4rem;
+	.project-main > h1 {
+		text-align: center;
+		color: #ff9d5c;
+		font-size: 2.4rem;
+		margin: 1rem 0 1.5rem;
 	}
 
-	.playable-link {
+	.project-hero {
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 1.75rem;
+		align-items: center;
+		margin-bottom: 2rem;
+	}
+
+	.project-hero.has-media {
+		grid-template-columns: 1.5fr 1fr;
+	}
+
+	.hero-media {
+		margin: 0;
+		width: 100%;
+		box-sizing: border-box;
+		border: 1px solid #444;
+		border-radius: 8px;
+	}
+
+	.hero-image {
+		display: block;
+		aspect-ratio: 16 / 9;
+		object-fit: cover;
+	}
+
+	.info-list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.45rem;
+		line-height: 1.4;
+	}
+
+	.label {
+		color: #ff9d5c;
 		font-weight: 600;
 	}
 
-		:global(.case-study h2) {
+	.play-btn {
+		display: inline-block;
+		margin-top: 1.1rem;
+		padding: 0.55rem 1.1rem;
+		border-radius: 6px;
+		background: #ff9d5c;
+		color: #14161a;
+		font-weight: 600;
+		text-decoration: none;
+	}
+
+	.toc-float {
+		position: fixed;
+		bottom: 1.5rem;
+		left: 1.5rem;
+		background: #1e2127;
+		border: 1px solid #444;
+		border-radius: 8px;
+		padding: 0.6rem 1rem;
+		max-width: 220px;
+		z-index: 10;
+	}
+
+	.toc-float summary {
+		cursor: pointer;
+		font-weight: 600;
+		font-size: 0.8rem;
+		text-transform: uppercase;
+		letter-spacing: 0.03em;
+		color: #999;
+	}
+
+	.toc-float ul {
+		list-style: none;
+		margin: 0.6rem 0 0;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.4rem;
+		max-height: 40vh;
+		overflow-y: auto;
+	}
+
+	@media (max-width: 800px) {
+		.project-hero.has-media {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	/* ---- Case study body (content comes from Markdown, so these are global) ---- */
+
+	:global(.case-study h2) {
 		margin-top: 3rem;
 		padding-top: 2rem;
 		border-top: 1px solid #2a2d33;
@@ -82,6 +186,23 @@ const sections = headings.filter((h) => h.depth === 2);
 	:global(.case-study > ul),
 	:global(.case-study > ol) {
 		max-width: 700px;
+	}
+
+	:global(.video-embed) {
+		position: relative;
+		width: 100%;
+		aspect-ratio: 16 / 9;
+		margin: 1.5rem 0;
+		border-radius: 8px;
+		overflow: hidden;
+	}
+
+	:global(.video-embed iframe) {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		border: 0;
 	}
 
 	:global(.card) {
@@ -119,58 +240,113 @@ const sections = headings.filter((h) => h.depth === 2);
 		margin: 0;
 	}
 
-	@media (max-width: 800px) {
-		:global(.split) {
-			grid-template-columns: 1fr;
-		}
+	:global(.split img) {
+		display: block;
+		width: 100%;
+		border: 1px solid #444;
+		border-radius: 8px;
 	}
 
-	:global(.video-embed) {
-		position: relative;
+	:global(.split.reverse .card) {
+		order: -1;
+	}
+
+	:global(.strip) {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+		gap: 0.75rem;
+		border: 1px solid #333;
+		border-radius: 8px;
+		padding: 1rem;
+		margin: 1.5rem 0;
+	}
+
+	:global(.strip figure) {
+		margin: 0;
+		text-align: center;
+	}
+
+	:global(.strip img) {
+		display: block;
 		width: 100%;
 		aspect-ratio: 16 / 9;
+		object-fit: cover;
+		border: 1px solid #555;
+		border-radius: 4px;
+	}
+
+	:global(.strip figcaption) {
+		margin-top: 0.4rem;
+		font-size: 0.8rem;
+		font-style: italic;
+		color: #bbb;
+	}
+
+	:global(.gallery) {
+		display: flex;
+		gap: 1rem;
+		overflow-x: auto;
+		scroll-snap-type: x mandatory;
+		padding-bottom: 0.75rem;
 		margin: 1.5rem 0;
+	}
+
+	:global(.gallery img) {
+		flex: 0 0 75%;
+		width: 75%;
+		aspect-ratio: 16 / 9;
+		object-fit: cover;
+		scroll-snap-align: center;
+		border: 1px solid #444;
+		border-radius: 8px;
+	}
+
+	:global(.accordion) {
+		margin: 0.75rem 0;
+		border: 1px solid #333;
 		border-radius: 8px;
 		overflow: hidden;
 	}
 
-	:global(.video-embed iframe) {
-		position: absolute;
-		inset: 0;
-		width: 100%;
-		height: 100%;
-		border: 0;
+	:global(.accordion > summary) {
+		cursor: pointer;
+		padding: 0.8rem 1rem;
+		font-weight: 600;
+		color: #ff9d5c;
+		background: #1e2127;
 	}
 
-	.toc-float {
-		position: fixed;
-		bottom: 1.5rem;
-		left: 1.5rem;
-		background: #1e2127;
+	:global(.accordion[open] > summary) {
+		border-bottom: 1px solid #333;
+	}
+
+	:global(.accordion > .card) {
+		background: #181b20;
+		border-radius: 0;
+	}
+
+	:global(.media) {
+		margin: 1.5rem 0;
+		text-align: center;
+	}
+
+	:global(.media img) {
+		width: 100%;
+		max-width: 640px;
 		border: 1px solid #444;
 		border-radius: 8px;
-		padding: 0.6rem 1rem;
-		max-width: 220px;
-		z-index: 10;
 	}
 
-	.toc-float summary {
-		cursor: pointer;
-		font-weight: 600;
-		font-size: 0.8rem;
-		text-transform: uppercase;
-		letter-spacing: 0.03em;
-		color: #999;
+	:global(.media figcaption) {
+		margin-top: 0.5rem;
+		font-size: 0.85rem;
+		font-style: italic;
+		color: #bbb;
 	}
 
-	.toc-float ul {
-		list-style: none;
-		margin: 0.6rem 0 0;
-		padding: 0;
-		display: flex;
-		flex-direction: column;
-		gap: 0.4rem;
-		max-height: 40vh;
-		overflow-y: auto;
+	@media (max-width: 800px) {
+		:global(.split) {
+			grid-template-columns: 1fr;
+		}
 	}
 </style>

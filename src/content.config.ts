@@ -12,6 +12,7 @@ const projects = defineCollection({
 		date: z.date(),
 		tools: z.array(z.string()),
 		hook: z.string().optional(),
+		heroVideo: z.string().optional(),
 		genre: z.string().optional(),
 		role: z.string().optional(),
 		studio: z.string().optional(),

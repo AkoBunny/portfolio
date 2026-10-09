@@ -1,6 +1,6 @@
 ---
-title: "Image Gallery Case Study"
-hook: "Testing a scrollable gallery for showing multiple UI iterations side by side."
+title: "Inventory UI Redesign"
+hook: "Reworking an inventory screen so item information is readable at a glance."
 category: ["UI Design"]
 status: "In Progress"
 type: "Coursework"

@@ -1,7 +1,7 @@
 ---
-title: "GIF Case Study"
-coverImage: "/portfolio/images/placeholders/test-portrait.svg"
-hook: "Testing a looping GIF to show a short gameplay moment in motion."
+title: "Combat Feel Prototype"
+coverImage: ""
+hook: "Tuning hit timing and feedback so melee combat feels responsive."
 category: ["Gameplay Design"]
 status: "Finished"
 type: "Personal"
