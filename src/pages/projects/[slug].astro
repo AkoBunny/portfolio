@@ -38,13 +38,19 @@ const dateLabel = project.data.date.toLocaleDateString('en-GB', { month: 'short'
 			<div class="hero-info">
 				<ul class="info-list">
 					{project.data.genre && <li><span class="label">Genre:</span> {project.data.genre}</li>}
-					<li><span class="label">Category:</span> {project.data.category.join(', ')}</li>
 					<li><span class="label">Status:</span> {project.data.status}</li>
-					<li><span class="label">Tools:</span> {project.data.tools.join(', ')}</li>
+					<li><span class="label">Date:</span> {dateLabel}</li>
+					{project.data.duration && <li><span class="label">Duration:</span> {project.data.duration}</li>}
+					{project.data.teamSize && <li><span class="label">Team size:</span> {project.data.teamSize}</li>}
 					{project.data.role && <li><span class="label">Role:</span> {project.data.role}</li>}
 					{project.data.studio && <li><span class="label">Studio:</span> {project.data.studio}</li>}
-					{project.data.teamSize && <li><span class="label">Team size:</span> {project.data.teamSize}</li>}
-					<li><span class="label">Date:</span> {dateLabel}</li>
+					{project.data.engine && <li><span class="label">Engine:</span> {project.data.engine}</li>}
+					{project.data.tools.length > 0 && <li><span class="label">Tools:</span> {project.data.tools.join(', ')}</li>}
+					{project.data.assetsUsed && project.data.assetsUsed.length > 0 && (
+						<li><span class="label">Assets used:</span> {project.data.assetsUsed.join(', ')}</li>
+					)}
+					{project.data.iterations !== undefined && <li><span class="label">Iterations:</span> {project.data.iterations}</li>}
+					{project.data.playtests !== undefined && <li><span class="label">Playtests:</span> {project.data.playtests}</li>}
 				</ul>
 				{project.data.playableLink && (
 					<a class="play-btn" href={project.data.playableLink}>Play the build</a>
@@ -349,4 +355,793 @@ const dateLabel = project.data.date.toLocaleDateString('en-GB', { month: 'short'
 			grid-template-columns: 1fr;
 		}
 	}
+
+	/* ---- Before / after slider ---- */
+
+	:global(.compare) {
+		--pos: 50%;
+		position: relative;
+		max-width: 800px;
+		aspect-ratio: 16 / 9;
+		margin: 1.5rem auto;
+		border: 1px solid #444;
+		border-radius: 8px;
+		overflow: hidden;
+		cursor: ew-resize;
+		touch-action: pan-y;
+		user-select: none;
+	}
+
+	:global(.compare img) {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		pointer-events: none;
+	}
+
+	:global(.compare .compare-after) {
+		clip-path: inset(0 0 0 var(--pos));
+	}
+
+	:global(.compare-handle) {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: var(--pos);
+		width: 3px;
+		margin-left: -1.5px;
+		background: #ff9d5c;
+		pointer-events: none;
+	}
+
+	:global(.compare-handle::after) {
+		content: "";
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		width: 40px;
+		height: 40px;
+		border-radius: 50%;
+		background-color: #ff9d5c;
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2314161a' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 7l-5 5 5 5M16 7l5 5-5 5M3 12h18'/%3E%3C/svg%3E");
+		background-position: center;
+		background-size: 22px 22px;
+		background-repeat: no-repeat;
+	}
+
+	:global(.compare::before),
+	:global(.compare::after) {
+		position: absolute;
+		top: 0.75rem;
+		z-index: 2;
+		padding: 0.2rem 0.6rem;
+		border-radius: 4px;
+		background: rgba(20, 22, 26, 0.75);
+		font-size: 0.8rem;
+		font-weight: 600;
+		pointer-events: none;
+	}
+
+	:global(.compare::before) {
+		content: "Before";
+		left: 0.75rem;
+	}
+
+	:global(.compare::after) {
+		content: "After";
+		right: 0.75rem;
+	}
+
+	:global(.compare:focus-visible) {
+		outline: 2px solid #ff9d5c;
+		outline-offset: 2px;
+	}
+
+	/* ---- Gallery arrows and dots (the script adds the buttons) ---- */
+
+	:global(.gallery) {
+		scrollbar-width: none;
+	}
+
+	:global(.gallery::-webkit-scrollbar) {
+		display: none;
+	}
+
+	:global(.gallery-wrap) {
+		position: relative;
+		max-width: 800px;
+		margin: 1.5rem auto 0.5rem;
+	}
+
+	:global(.gallery-wrap .gallery) {
+		margin: 0;
+	}
+
+	:global(.gallery-btn) {
+		position: absolute;
+		top: calc(50% - 1.25rem);
+		z-index: 2;
+		width: 2.5rem;
+		height: 2.5rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 50%;
+		border: 1px solid #ff9d5c;
+		background: rgba(20, 22, 26, 0.85);
+		color: #ff9d5c;
+		font-size: 1.6rem;
+		line-height: 1;
+		cursor: pointer;
+	}
+
+	:global(.gallery-prev) {
+		left: 0.5rem;
+	}
+
+	:global(.gallery-next) {
+		right: 0.5rem;
+	}
+
+	:global(.gallery-btn:disabled) {
+		opacity: 0.3;
+		cursor: default;
+	}
+
+	:global(.gallery-btn svg) {
+		display: block;
+	}
+
+	:global(.gallery-dots) {
+		display: flex;
+		justify-content: center;
+		gap: 0.5rem;
+		margin: 0 0 1.5rem;
+	}
+
+	:global(.gallery-dot) {
+		width: 12px;
+		height: 12px;
+		padding: 0;
+		border: 0;
+		border-radius: 50%;
+		background: #3a3f47;
+		cursor: pointer;
+	}
+
+	:global(.gallery-dot.active) {
+		background: #ff9d5c;
+	}
+
 </style>
+
+<script>
+	// Before / after sliders
+	document.querySelectorAll<HTMLElement>('.compare').forEach((el) => {
+		let pos = 50;
+
+		const apply = (value: number) => {
+			pos = Math.min(100, Math.max(0, value));
+			el.style.setProperty('--pos', `${pos}%`);
+			el.setAttribute('aria-valuenow', String(Math.round(pos)));
+		};
+
+		const fromPointer = (clientX: number) => {
+			const rect = el.getBoundingClientRect();
+			apply(((clientX - rect.left) / rect.width) * 100);
+		};
+
+		el.addEventListener('pointerdown', (e) => {
+			el.setPointerCapture(e.pointerId);
+			fromPointer(e.clientX);
+		});
+
+		el.addEventListener('pointermove', (e) => {
+			if (el.hasPointerCapture(e.pointerId)) fromPointer(e.clientX);
+		});
+
+		el.addEventListener('keydown', (e) => {
+			if (e.key === 'ArrowLeft') apply(pos - 5);
+			if (e.key === 'ArrowRight') apply(pos + 5);
+		});
+
+		apply(50);
+	});
+
+	// Gallery arrows and dots
+	document.querySelectorAll<HTMLElement>('.gallery').forEach((gallery) => {
+		const slides = Array.from(gallery.querySelectorAll<HTMLElement>('img'));
+		if (slides.length < 2) return;
+
+		const wrap = document.createElement('div');
+		wrap.className = 'gallery-wrap';
+		gallery.before(wrap);
+		wrap.appendChild(gallery);
+
+		const slideCentre = (slide: HTMLElement) => {
+			const g = gallery.getBoundingClientRect();
+			const s = slide.getBoundingClientRect();
+			return s.left - g.left + gallery.scrollLeft + s.width / 2;
+		};
+
+		const currentIndex = () => {
+			const viewCentre = gallery.scrollLeft + gallery.clientWidth / 2;
+			let best = 0;
+			slides.forEach((slide, i) => {
+				const distance = Math.abs(slideCentre(slide) - viewCentre);
+				const bestDistance = Math.abs(slideCentre(slides[best]) - viewCentre);
+				if (distance < bestDistance) best = i;
+			});
+			return best;
+		};
+
+		const goTo = (index: number) => {
+			const i = Math.min(slides.length - 1, Math.max(0, index));
+			gallery.scrollTo({
+				left: slideCentre(slides[i]) - gallery.clientWidth / 2,
+				behavior: 'smooth',
+			});
+		};
+
+		const makeButton = (className: string, label: string, text: string) => {
+			const b = document.createElement('button');
+			b.type = 'button';
+			b.className = className;
+			b.setAttribute('aria-label', label);
+			b.textContent = text;
+			return b;
+		};
+
+		const prev = makeButton('gallery-btn gallery-prev', 'Previous image', '');
+		const next = makeButton('gallery-btn gallery-next', 'Next image', '');
+		const chevron = (d: string) =>
+			`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg>`;
+		prev.innerHTML = chevron('M15 5l-7 7 7 7');
+		next.innerHTML = chevron('M9 5l7 7-7 7');
+		wrap.append(prev, next);
+
+		const dots = document.createElement('div');
+		dots.className = 'gallery-dots';
+		const dotButtons = slides.map((_, i) => {
+			const d = makeButton('gallery-dot', `Go to image ${i + 1}`, '');
+			d.addEventListener('click', () => goTo(i));
+			dots.appendChild(d);
+			return d;
+		});
+		wrap.after(dots);
+
+		const update = () => {
+			const i = currentIndex();
+			dotButtons.forEach((d, n) => d.classList.toggle('active', n === i));
+			prev.disabled = i === 0;
+			next.disabled = i === slides.length - 1;
+		};
+
+		prev.addEventListener('click', () => goTo(currentIndex() - 1));
+		next.addEventListener('click', () => goTo(currentIndex() + 1));
+		gallery.addEventListener('scroll', update, { passive: true });
+		update();
+	});
+</script>
+
+<style is:global>
+	.case-study img,
+	.hero-image {
+		cursor: zoom-in;
+		-webkit-user-drag: none;
+		user-select: none;
+	}
+
+	.case-study img:focus-visible,
+	.hero-image:focus-visible {
+		outline: 2px solid #ff9d5c;
+		outline-offset: 2px;
+	}
+
+	.lb {
+		position: fixed;
+		inset: 0;
+		z-index: 100;
+		display: none;
+	}
+
+	.lb.open {
+		display: block;
+	}
+
+	.lb [hidden] {
+		display: none !important;
+	}
+
+	.lb-backdrop {
+		position: absolute;
+		inset: 0;
+		background: rgba(8, 9, 11, 0.8);
+		backdrop-filter: blur(3px);
+	}
+
+	.lb-toolbar {
+		position: absolute;
+		top: 0.75rem;
+		right: 0.75rem;
+		z-index: 3;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.lb-btn,
+	.lb-nav {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 2.5rem;
+		height: 2.5rem;
+		padding: 0;
+		border-radius: 50%;
+		border: 1px solid #ff9d5c;
+		background: rgba(20, 22, 26, 0.85);
+		color: #ff9d5c;
+		cursor: pointer;
+	}
+
+	.lb-btn:hover,
+	.lb-nav:hover {
+		background: #ff9d5c;
+		color: #14161a;
+	}
+
+	.lb-btn svg,
+	.lb-nav svg {
+		display: block;
+	}
+
+	.lb-nav {
+		position: absolute;
+		top: calc(50% - 1.375rem);
+		z-index: 3;
+		width: 2.75rem;
+		height: 2.75rem;
+	}
+
+	.lb-prev {
+		left: 1rem;
+	}
+
+	.lb-next {
+		right: 1rem;
+	}
+
+	.lb-nav:disabled,
+	.lb-nav:disabled:hover {
+		opacity: 0.3;
+		cursor: default;
+		background: rgba(20, 22, 26, 0.85);
+		color: #ff9d5c;
+	}
+
+	.lb-stage {
+		position: absolute;
+		inset: 4rem 5rem 3.5rem;
+		z-index: 1;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		overflow: hidden;
+		touch-action: none;
+		user-select: none;
+	}
+
+	.lb-img {
+		display: block;
+		flex: none;
+		max-width: none;
+		transform-origin: center;
+		-webkit-user-drag: none;
+		user-select: none;
+		cursor: default;
+	}
+
+	.lb-stage.zoomed .lb-img {
+		cursor: grab;
+	}
+
+	.lb-stage.grabbing .lb-img {
+		cursor: grabbing;
+	}
+
+	.lb-caption {
+		position: absolute;
+		left: 0;
+		right: 0;
+		bottom: 1rem;
+		z-index: 2;
+		padding: 0 5rem;
+		text-align: center;
+		color: #ddd;
+		font-size: 0.9rem;
+		pointer-events: none;
+	}
+
+	.lb-share {
+		position: relative;
+	}
+
+	.lb-menu {
+		position: absolute;
+		top: calc(100% + 0.5rem);
+		right: 0;
+		min-width: 11rem;
+		display: flex;
+		flex-direction: column;
+		padding: 0.35rem;
+		background: #1e2127;
+		border: 1px solid #444;
+		border-radius: 8px;
+	}
+
+	.lb-menu a {
+		padding: 0.5rem 0.75rem;
+		border-radius: 6px;
+		color: #f0f0f0 !important;
+		text-decoration: none;
+		font-size: 0.9rem;
+	}
+
+	.lb-menu a:hover {
+		background: #2a2d33;
+	}
+
+	@media (max-width: 700px) {
+		.lb-stage {
+			inset: 4rem 0.5rem 3.5rem;
+		}
+
+		.lb-caption {
+			padding: 0 1rem;
+		}
+	}
+</style>
+
+<script>
+	// ---- Image viewer (lightbox) ----
+	const svg = (paths: string) =>
+		`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
+
+	const ICONS = {
+		close: svg('<path d="M6 6l12 12M18 6L6 18"/>'),
+		zoomIn: svg('<circle cx="11" cy="11" r="6"/><path d="M21 21l-5-5M11 8v6M8 11h6"/>'),
+		zoomOut: svg('<circle cx="11" cy="11" r="6"/><path d="M21 21l-5-5M8 11h6"/>'),
+		fullscreen: svg('<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>'),
+		exitFullscreen: svg('<path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/>'),
+		share: svg('<circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.2 10.8l7.6-3.6M8.2 13.2l7.6 3.6"/>'),
+		prev: svg('<path d="M15 5l-7 7 7 7"/>'),
+		next: svg('<path d="M9 5l7 7-7 7"/>'),
+	};
+
+	const root = document.createElement('div');
+	root.className = 'lb';
+	root.setAttribute('role', 'dialog');
+	root.setAttribute('aria-modal', 'true');
+	root.setAttribute('aria-label', 'Image viewer');
+	root.innerHTML = `
+		<div class="lb-backdrop"></div>
+		<div class="lb-toolbar">
+			<button type="button" class="lb-btn" data-act="zoom-out" aria-label="Zoom out" title="Zoom out">${ICONS.zoomOut}</button>
+			<button type="button" class="lb-btn" data-act="zoom-in" aria-label="Zoom in" title="Zoom in">${ICONS.zoomIn}</button>
+			<div class="lb-share">
+				<button type="button" class="lb-btn" data-act="share" aria-label="Share" title="Share">${ICONS.share}</button>
+				<div class="lb-menu" hidden>
+					<a data-share="facebook" target="_blank" rel="noopener">Facebook</a>
+					<a data-share="x" target="_blank" rel="noopener">X (Twitter)</a>
+					<a data-share="pinterest" target="_blank" rel="noopener">Pinterest</a>
+					<a data-share="download" download>Download image</a>
+				</div>
+			</div>
+			<button type="button" class="lb-btn" data-act="fullscreen" aria-label="Fullscreen" title="Fullscreen">${ICONS.fullscreen}</button>
+			<button type="button" class="lb-btn" data-act="close" aria-label="Close" title="Close">${ICONS.close}</button>
+		</div>
+		<button type="button" class="lb-nav lb-prev" aria-label="Previous image">${ICONS.prev}</button>
+		<div class="lb-stage"><img class="lb-img" alt="" draggable="false"></div>
+		<button type="button" class="lb-nav lb-next" aria-label="Next image">${ICONS.next}</button>
+		<div class="lb-caption"></div>
+	`;
+	document.body.appendChild(root);
+
+	const q = <T extends HTMLElement>(selector: string) => root.querySelector(selector) as T;
+	const stage = q<HTMLElement>('.lb-stage');
+	const img = q<HTMLImageElement>('.lb-img');
+	const caption = q<HTMLElement>('.lb-caption');
+	const prevBtn = q<HTMLButtonElement>('.lb-prev');
+	const nextBtn = q<HTMLButtonElement>('.lb-next');
+	const fsBtn = q<HTMLButtonElement>('[data-act="fullscreen"]');
+	const menu = q<HTMLElement>('.lb-menu');
+
+	const MAX_SCALE = 6;
+	const STEP_PX = 120;
+
+	let items: HTMLImageElement[] = [];
+	let index = 0;
+	let scale = 1;
+	let tx = 0;
+	let ty = 0;
+	let baseW = 0;
+	let baseH = 0;
+	let lastTrigger: HTMLElement | null = null;
+
+	// Size the image so it fits the stage (scale 1 = "fit to screen")
+	function fitImage() {
+		const nw = img.naturalWidth || 1;
+		const nh = img.naturalHeight || 1;
+		const f = Math.min(stage.clientWidth / nw, stage.clientHeight / nh);
+		baseW = nw * f;
+		baseH = nh * f;
+		img.style.width = `${baseW}px`;
+		img.style.height = `${baseH}px`;
+	}
+
+	// Apply pan and zoom, keeping the image from being dragged out of view
+	function apply() {
+		const maxX = Math.max(0, (baseW * scale - stage.clientWidth) / 2);
+		const maxY = Math.max(0, (baseH * scale - stage.clientHeight) / 2);
+		tx = Math.min(maxX, Math.max(-maxX, tx));
+		ty = Math.min(maxY, Math.max(-maxY, ty));
+		img.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+		stage.classList.toggle('zoomed', scale > 1);
+	}
+
+	// Zoom towards a point (cx, cy measured from the stage centre) so the
+	// spot under the cursor stays put while the image grows
+	function zoomAt(cx: number, cy: number, factor: number) {
+		const next = Math.min(MAX_SCALE, Math.max(1, scale * factor));
+		const k = next / scale;
+		tx = cx - (cx - tx) * k;
+		ty = cy - (cy - ty) * k;
+		scale = next;
+		if (scale === 1) {
+			tx = 0;
+			ty = 0;
+		}
+		apply();
+	}
+
+	function show(i: number) {
+		index = Math.min(items.length - 1, Math.max(0, i));
+		const source = items[index];
+		const label = source.closest('figure')?.querySelector('figcaption')?.textContent?.trim() || source.alt;
+		scale = 1;
+		tx = 0;
+		ty = 0;
+		img.alt = source.alt;
+		img.src = source.dataset.full || source.currentSrc || source.src;
+		if (img.complete && img.naturalWidth) fitImage();
+		apply();
+		caption.textContent = items.length > 1 ? `${index + 1} / ${items.length}${label ? ' - ' + label : ''}` : label;
+		prevBtn.hidden = items.length < 2;
+		nextBtn.hidden = items.length < 2;
+		prevBtn.disabled = index === 0;
+		nextBtn.disabled = index === items.length - 1;
+	}
+
+	function open(trigger: HTMLImageElement) {
+		lastTrigger = trigger;
+		const group = trigger.closest('.strip, .gallery');
+		items = group ? Array.from(group.querySelectorAll<HTMLImageElement>('img')) : [trigger];
+		root.classList.add('open');
+		document.documentElement.style.overflow = 'hidden';
+		show(items.indexOf(trigger));
+		q<HTMLButtonElement>('[data-act="close"]').focus();
+	}
+
+	function close() {
+		if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+		menu.hidden = true;
+		root.classList.remove('open');
+		document.documentElement.style.overflow = '';
+		lastTrigger?.focus();
+	}
+
+	function updateShareLinks() {
+		const page = encodeURIComponent(location.href);
+		const src = new URL(img.src, location.href).href;
+		const text = encodeURIComponent(items[index]?.alt || document.title);
+		const setLink = (name: string, href: string) => {
+			(menu.querySelector(`[data-share="${name}"]`) as HTMLAnchorElement).href = href;
+		};
+		setLink('facebook', `https://www.facebook.com/sharer/sharer.php?u=${page}`);
+		setLink('x', `https://twitter.com/intent/tweet?url=${page}&text=${text}`);
+		setLink('pinterest', `https://www.pinterest.com/pin/create/button/?url=${page}&media=${encodeURIComponent(src)}&description=${text}`);
+		const download = menu.querySelector('[data-share="download"]') as HTMLAnchorElement;
+		download.href = src;
+		download.download = src.split('/').pop() || 'image';
+	}
+
+	// ---- Buttons ----
+	q('.lb-backdrop').addEventListener('click', close);
+	q('[data-act="close"]').addEventListener('click', close);
+	q('[data-act="zoom-in"]').addEventListener('click', () => zoomAt(0, 0, 1.4));
+	q('[data-act="zoom-out"]').addEventListener('click', () => zoomAt(0, 0, 1 / 1.4));
+	prevBtn.addEventListener('click', () => show(index - 1));
+	nextBtn.addEventListener('click', () => show(index + 1));
+
+	q('[data-act="share"]').addEventListener('click', () => {
+		updateShareLinks();
+		menu.hidden = !menu.hidden;
+	});
+	menu.addEventListener('click', () => {
+		menu.hidden = true;
+	});
+	root.addEventListener('click', (e) => {
+		if (!(e.target as HTMLElement).closest('.lb-share')) menu.hidden = true;
+	});
+
+	if (!root.requestFullscreen) fsBtn.hidden = true;
+	fsBtn.addEventListener('click', () => {
+		if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+		else root.requestFullscreen().catch(() => {});
+	});
+	document.addEventListener('fullscreenchange', () => {
+		fsBtn.innerHTML = document.fullscreenElement ? ICONS.exitFullscreen : ICONS.fullscreen;
+		requestAnimationFrame(() => {
+			fitImage();
+			apply();
+		});
+	});
+
+	img.addEventListener('load', () => {
+		fitImage();
+		apply();
+	});
+	window.addEventListener('resize', () => {
+		if (!root.classList.contains('open')) return;
+		fitImage();
+		apply();
+	});
+
+	// ---- Keyboard ----
+	document.addEventListener('keydown', (e) => {
+		if (!root.classList.contains('open')) return;
+		switch (e.key) {
+			case 'Escape':
+				if (!menu.hidden) menu.hidden = true;
+				else close();
+				break;
+			case 'ArrowLeft':
+				show(index - 1);
+				break;
+			case 'ArrowRight':
+				show(index + 1);
+				break;
+			case '+':
+			case '=':
+				zoomAt(0, 0, 1.4);
+				break;
+			case '-':
+				zoomAt(0, 0, 1 / 1.4);
+				break;
+			case '0':
+				scale = 1;
+				tx = 0;
+				ty = 0;
+				apply();
+				break;
+			default:
+				return;
+		}
+		e.preventDefault();
+	});
+
+	// ---- Mouse wheel zoom ----
+	stage.addEventListener(
+		'wheel',
+		(e) => {
+			e.preventDefault();
+			const rect = stage.getBoundingClientRect();
+			const cx = e.clientX - (rect.left + rect.width / 2);
+			const cy = e.clientY - (rect.top + rect.height / 2);
+			zoomAt(cx, cy, Math.exp(-e.deltaY * 0.002));
+		},
+		{ passive: false },
+	);
+
+	// ---- Dragging: pan when zoomed in, scrub through images when not ----
+	let dragging = false;
+	let moved = false;
+	let stepped = false;
+	let startedOnImage = false;
+	let startX = 0;
+	let startY = 0;
+	let startTx = 0;
+	let startTy = 0;
+	let lastX = 0;
+	let stepAccum = 0;
+
+	stage.addEventListener('pointerdown', (e) => {
+		if (e.button !== 0) return;
+		dragging = true;
+		moved = false;
+		stepped = false;
+		startedOnImage = e.target === img;
+		startX = e.clientX;
+		startY = e.clientY;
+		lastX = e.clientX;
+		startTx = tx;
+		startTy = ty;
+		stepAccum = 0;
+		stage.setPointerCapture(e.pointerId);
+	});
+
+	stage.addEventListener('pointermove', (e) => {
+		if (!dragging) return;
+		const dx = e.clientX - startX;
+		const dy = e.clientY - startY;
+		if (!moved && Math.hypot(dx, dy) > 5) moved = true;
+		if (!moved) {
+			lastX = e.clientX;
+			return;
+		}
+
+		if (scale > 1) {
+			stage.classList.add('grabbing');
+			tx = startTx + dx;
+			ty = startTy + dy;
+			apply();
+		} else if (items.length > 1) {
+			stepAccum += e.clientX - lastX;
+			if (stepAccum <= -STEP_PX) {
+				show(index + 1);
+				stepAccum = 0;
+				stepped = true;
+			} else if (stepAccum >= STEP_PX) {
+				show(index - 1);
+				stepAccum = 0;
+				stepped = true;
+			}
+		}
+		lastX = e.clientX;
+	});
+
+	const endDrag = (e: PointerEvent) => {
+		if (!dragging) return;
+		dragging = false;
+		stage.classList.remove('grabbing');
+		if (!moved) {
+			if (!startedOnImage) close();
+			return;
+		}
+		if (scale === 1 && items.length > 1 && !stepped) {
+			const dx = e.clientX - startX;
+			if (dx <= -40) show(index + 1);
+			else if (dx >= 40) show(index - 1);
+		}
+	};
+	stage.addEventListener('pointerup', endDrag);
+	stage.addEventListener('pointercancel', () => {
+		dragging = false;
+		stage.classList.remove('grabbing');
+	});
+
+	// Stop the browser from "picking up" the image when you drag it
+	root.addEventListener('dragstart', (e) => e.preventDefault());
+
+	// ---- Make every case-study image open the viewer ----
+	document
+		.querySelectorAll<HTMLImageElement>('.case-study img, .hero-image')
+		.forEach((el) => {
+			if (el.closest('.compare')) return;
+			el.draggable = false;
+			el.tabIndex = 0;
+			el.setAttribute('role', 'button');
+			el.setAttribute('aria-label', `Expand image: ${el.alt}`);
+			el.addEventListener('click', () => open(el));
+			el.addEventListener('keydown', (e) => {
+				if (e.key === 'Enter' || e.key === ' ') {
+					e.preventDefault();
+					open(el);
+				}
+			});
+		});
+</script>

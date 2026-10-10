@@ -26,6 +26,7 @@ const sortedProjects = projects.sort((a, b) => {
 				{project.data.hook && <p class="hook">{project.data.hook}</p>}
 				<div class="tags">
 					{project.data.category.map((cat) => <span class="tag">{cat}</span>)}
+					{project.data.engine && <span class="tag tag-tool">{project.data.engine}</span>}
 					{project.data.tools.map((tool) => <span class="tag tag-tool">{tool}</span>)}
 				</div>
 				<p>{project.data.status}</p>

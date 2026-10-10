@@ -6,7 +6,12 @@ status: "Finished"
 type: "Personal"
 featured: true
 date: 2026-08-20
-tools: ["Unity", "Blender"]
+duration: "10 weeks"
+engine: "Unity"
+tools: ["Blender", "Miro", "Notion"]
+assetsUsed: ["Placeholder VFX Pack", "Placeholder Audio Pack"]
+iterations: 7
+playtests: 12
 genre: "Action Puzzle"
 role: "Systems and level designer"
 teamSize: "Solo"
@@ -47,6 +52,16 @@ I focused on:
 </div>
 
 *Placeholder note: see the full breakdown below.*
+
+## Before and after
+
+<div class="compare" tabindex="0" role="slider" aria-label="Before and after comparison" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
+<img class="compare-before" src="/portfolio/images/placeholders/before.png" alt="Layout before iteration">
+<img class="compare-after" src="/portfolio/images/placeholders/after.png" alt="Layout after iteration">
+<span class="compare-handle"></span>
+</div>
+
+*Drag across the image (or use the left and right arrow keys) to compare the first blockout with the final layout.*
 
 ## Level overview
 
@@ -119,7 +134,7 @@ The level takes place in a **semi-open environment** with a central hub and seve
 <img src="/portfolio/images/placeholders/gallery-4.png" alt="Gallery placeholder 4">
 </div>
 
-*Scroll sideways to browse. Arrows and dots come in the next round.*
+*Use the arrows or dots, or swipe, to browse.*
 
 ## In motion
 
