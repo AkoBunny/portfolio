@@ -30,7 +30,7 @@ coverImage: "/portfolio/images/placeholders/gallery-1.png"
 
 **Inspiration:** Placeholder references to the games that shaped the approach.
 
-I focused on:
+**I focused on:**
 
 - Designing a clear path while still allowing optional exploration
 - Using **landmarks** and layout to guide players naturally
