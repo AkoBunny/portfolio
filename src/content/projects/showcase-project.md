@@ -20,8 +20,6 @@ playableLink: "https://example.com"
 coverImage: "/portfolio/images/placeholders/gallery-1.png"
 ---
 
-This placeholder case study uses every layout on the site, so we can judge a long page: side-by-side media, cards, a thumbnail strip, collapsible sections, a gallery and a GIF.
-
 ## Goal and inspiration
 
 <div class="split">

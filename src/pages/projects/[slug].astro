@@ -21,6 +21,8 @@ const dateLabel = project.data.date.toLocaleDateString('en-GB', { month: 'short'
 
 	<div class="project-main">
 		<h1>{project.data.title}</h1>
+		
+		{project.data.hook && <p class="subtitle">{project.data.hook}</p>}
 
 		<div class:list={['project-hero', { 'has-media': hasMedia }]}>
 			{project.data.heroVideo ? (
@@ -83,7 +85,7 @@ const dateLabel = project.data.date.toLocaleDateString('en-GB', { month: 'short'
 	.project-main > h1 {
 		text-align: center;
 		color: #ff9d5c;
-		font-size: 2.4rem;
+		font-size: 2.8rem;
 		margin: 1rem 0 1.5rem;
 	}
 
@@ -121,6 +123,7 @@ const dateLabel = project.data.date.toLocaleDateString('en-GB', { month: 'short'
 		flex-direction: column;
 		gap: 0.45rem;
 		line-height: 1.4;
+		font-size: 1.05rem;
 	}
 
 	.label {
@@ -171,6 +174,13 @@ const dateLabel = project.data.date.toLocaleDateString('en-GB', { month: 'short'
 		overflow-y: auto;
 	}
 
+	.subtitle {
+		text-align: center;
+		color: #bbb;
+		max-width: 60ch;
+		margin: -0.5rem auto 2rem;
+	}
+
 	@media (max-width: 800px) {
 		.project-hero.has-media {
 			grid-template-columns: 1fr;
@@ -179,13 +189,18 @@ const dateLabel = project.data.date.toLocaleDateString('en-GB', { month: 'short'
 
 	/* ---- Case study body (content comes from Markdown, so these are global) ---- */
 
+	:global(.case-study) {
+		font-size: 1.1rem;
+		line-height: 1.65;
+	}
+
 	:global(.case-study h2) {
 		margin-top: 3rem;
 		padding-top: 2rem;
 		border-top: 1px solid #2a2d33;
 		text-align: center;
 		color: #ff9d5c;
-		font-size: 1.8rem;
+		font-size: 2.2rem;
 	}
 
 	:global(.case-study > p),
@@ -238,7 +253,7 @@ const dateLabel = project.data.date.toLocaleDateString('en-GB', { month: 'short'
 		display: grid;
 		grid-template-columns: 1fr 1fr;
 		gap: 1.5rem;
-		align-items: start;
+		align-items: center;
 		margin: 1.5rem 0;
 	}
 
@@ -298,8 +313,8 @@ const dateLabel = project.data.date.toLocaleDateString('en-GB', { month: 'short'
 	}
 
 	:global(.gallery img) {
-		flex: 0 0 75%;
-		width: 75%;
+		flex: 0 0 100%;
+		width: 100%;
 		aspect-ratio: 16 / 9;
 		object-fit: cover;
 		scroll-snap-align: center;
@@ -310,16 +325,39 @@ const dateLabel = project.data.date.toLocaleDateString('en-GB', { month: 'short'
 	:global(.accordion) {
 		margin: 0.75rem 0;
 		border: 1px solid #333;
+		border-left: 4px solid #ff9d5c;
 		border-radius: 8px;
 		overflow: hidden;
 	}
 
 	:global(.accordion > summary) {
+		list-style: none;
+		display: flex;
+		align-items: center;
+		gap: 0.6rem;
 		cursor: pointer;
-		padding: 0.8rem 1rem;
+		padding: 0.9rem 1.1rem;
 		font-weight: 600;
 		color: #ff9d5c;
 		background: #1e2127;
+	}
+
+	:global(.accordion > summary::-webkit-details-marker) {
+		display: none;
+	}
+
+	:global(.accordion > summary::before) {
+		content: "";
+		width: 0.55rem;
+		height: 0.55rem;
+		border-right: 2px solid currentColor;
+		border-bottom: 2px solid currentColor;
+		transform: rotate(-45deg);
+		transition: transform 0.2s ease;
+	}
+
+	:global(.accordion[open] > summary::before) {
+		transform: rotate(45deg);
 	}
 
 	:global(.accordion[open] > summary) {
@@ -633,6 +671,13 @@ const dateLabel = project.data.date.toLocaleDateString('en-GB', { month: 'short'
 		cursor: zoom-in;
 		-webkit-user-drag: none;
 		user-select: none;
+	}
+
+	.case-study > p:has(> em:only-child) {
+		max-width: none;
+		text-align: center;
+		font-size: 0.9rem;
+		color: #bbb;
 	}
 
 	.case-study img:focus-visible,
