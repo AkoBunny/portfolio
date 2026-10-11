@@ -35,7 +35,14 @@
 </html>
 
 <style>
-		html {
+	:global(:root) {
+		--accent: #ffa987;
+		--accent-2: #ffb7c5;
+		--gradient: linear-gradient(135deg, var(--accent-2), var(--accent));
+		--gradient-flow: linear-gradient(90deg, var(--accent-2), var(--accent), var(--accent-2));
+	}
+
+	html {
 		margin: 0;
 		width: 100%;
 		scroll-padding-top: 90px;
@@ -55,6 +62,12 @@
 		line-height: 1.6;
 	}
 
+	body {
+		background-image: radial-gradient(ellipse at top, rgba(255, 183, 197, 0.12), transparent 55%);
+		background-repeat: no-repeat;
+		background-attachment: fixed;
+	}
+
 	main {
 		max-width: 1100px;
 		margin: 0 auto;
@@ -66,9 +79,9 @@
 		line-height: 1.2;
 	}
 
-:global(a:link),
+	:global(a:link),
 	:global(a:visited) {
-		color: #ff9d5c;
+		color: var(--accent);
 	}
 
 	.site-header {
@@ -76,7 +89,18 @@
 		top: 0;
 		z-index: 20;
 		background: #14161a;
-		border-bottom: 2px solid #ff9d5c;
+	}
+
+	.site-header::after {
+		content: "";
+		position: absolute;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		height: 2px;
+		background: var(--gradient-flow);
+		background-size: 200% 100%;
+		animation: flow 8s linear infinite;
 	}
 
 	.header-inner {
@@ -101,7 +125,7 @@
 		width: 42px;
 		height: 42px;
 		border-radius: 50%;
-		background: #ff9d5c;
+		background: var(--gradient);
 		color: #14161a;
 		display: flex;
 		align-items: center;
@@ -152,12 +176,31 @@
 		font-weight: 600;
 		text-decoration: none;
 		padding: 0.35rem 0.8rem;
-		border: 1px solid #ff9d5c;
+		border: 1px solid var(--accent);
 		border-radius: 6px;
 	}
 
 	.header-links a:hover {
-		background: #ff9d5c;
+		background: var(--gradient-flow);
+		background-size: 200% 100%;
+		animation: flow 2s linear infinite;
 		color: #14161a;
+	}
+	
+</style>
+
+<style is:global>
+	@keyframes flow {
+		to {
+			background-position: 200% 0;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		*,
+		*::before,
+		*::after {
+			animation: none !important;
+		}
 	}
 </style>
