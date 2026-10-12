@@ -1,12 +1,15 @@
+---
+import '@fontsource-variable/fredoka';
+---
+
 <!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
+		<link rel="icon" type="image/svg+xml" href="/portfolio/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
+		<title>Ako | Game Design Portfolio</title>
 	</head>
 	<body>
 		<header class="site-header">
@@ -40,6 +43,9 @@
 		--accent-2: #ffb7c5;
 		--gradient: linear-gradient(135deg, var(--accent-2), var(--accent));
 		--gradient-flow: linear-gradient(90deg, var(--accent-2), var(--accent), var(--accent-2));
+		--font-heading: Fredoka Variable, system-ui, sans-serif;
+		--radius: 18px;
+		--radius-sm: 12px;
 	}
 
 	html {
@@ -72,11 +78,6 @@
 		max-width: 1100px;
 		margin: 0 auto;
 		padding: 2rem 1.5rem;
-	}
-
-	h1, h2, h3 {
-		font-family: inherit;
-		line-height: 1.2;
 	}
 
 	:global(a:link),
@@ -171,14 +172,18 @@
 		gap: 1.25rem;
 	}
 
-	.header-links a {
-		font-size: 0.85rem;
-		font-weight: 600;
-		text-decoration: none;
-		padding: 0.35rem 0.8rem;
-		border: 1px solid var(--accent);
-		border-radius: 6px;
-	}
+    .header-links a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        font-weight: 600;
+        line-height: 1;
+        text-decoration: none;
+        padding: 0.6rem 1.3rem;
+        border: 1px solid var(--accent);
+        border-radius: 999px;
+    }
 
 	.header-links a:hover {
 		background: var(--gradient-flow);
@@ -190,17 +195,40 @@
 </style>
 
 <style is:global>
-	@keyframes flow {
-		to {
-			background-position: 200% 0;
-		}
-	}
 
-	@media (prefers-reduced-motion: reduce) {
-		*,
-		*::before,
-		*::after {
-			animation: none !important;
-		}
-	}
+    @keyframes flow {
+        to {
+            background-position: 200% 0;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            animation: none !important;
+        }
+    }
+
+    h1,
+    h2,
+    h3,
+    .brand-name {
+        font-family: var(--font-heading);
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        line-height: 1.2;
+    }
+
+	    nav a,
+    .header-links a,
+    .btn,
+    .play-btn,
+    .label,
+    .accordion > summary,
+    .toc-float summary,
+    .tag {
+        font-family: var(--font-heading);
+    }
+
 </style>

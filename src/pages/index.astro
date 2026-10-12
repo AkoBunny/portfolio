@@ -96,9 +96,12 @@ const featuredProjects = allProjects.filter((p) => p.data.featured);
 	}
 
 	.btn {
-		display: inline-block;
-		padding: 0.55rem 1.1rem;
-		border-radius: 6px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		line-height: 1;
+		padding: 0.6rem 1.3rem;
+		border-radius: 999px;
 		border: 1px solid var(--accent);
 		text-decoration: none;
 		font-weight: 600;
@@ -149,7 +152,7 @@ const featuredProjects = allProjects.filter((p) => p.data.featured);
 		display: block;
 		padding: 1rem;
 		border: 1px solid #333;
-		border-radius: 8px;
+		border-radius: var(--radius);
 		text-decoration: none;
 		color: inherit;
 	}

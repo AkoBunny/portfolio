@@ -48,7 +48,7 @@ const sortedProjects = projects.sort((a, b) => {
 		display: block;
 		padding: 1rem;
 		border: 1px solid #333;
-		border-radius: 8px;
+		border-radius: var(--radius);
 		text-decoration: none;
 		color: inherit;
 	}
@@ -84,7 +84,7 @@ const sortedProjects = projects.sort((a, b) => {
 		.card-thumb {
 		width: 100%;
 		aspect-ratio: 16 / 9;
-		border-radius: 6px;
+		border-radius: var(--radius-sm);
 		background: #1e2127;
 		border: 1px solid #333;
 		display: flex;
