@@ -1,0 +1,65 @@
+/* Decoration shared by every page. Imported once from Layout.astro.
+   Colours come from the palette variables, so these follow whichever palette is active. */
+
+/* ---- Blossom shape used as the avatar logo ---- */
+.blossom {
+	display: block;
+	width: 62%;
+	height: 62%;
+	background: #14161a;
+	-webkit-mask: var(--blossom-mask);
+	mask: var(--blossom-mask);
+}
+
+/* ---- Blossom bullets in case studies ---- */
+.case-study ul > li {
+	position: relative;
+	list-style: none;
+}
+
+.case-study ul > li::before {
+	content: "";
+	position: absolute;
+	left: -1.4em;
+	top: 0.45em;
+	width: 0.85em;
+	height: 0.85em;
+	background: var(--gradient);
+	-webkit-mask: var(--blossom-mask);
+	mask: var(--blossom-mask);
+}
+
+/* ---- Soft scroll-in ----
+   Elements with class "reveal" start faint and slightly low, then settle when the
+   script adds class "in". They are only hidden once the page script has marked
+   <html> with the "js" class, so nothing stays invisible if scripts fail to run. */
+.js .reveal {
+	opacity: 0;
+	transform: translateY(1.25rem);
+	transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.js .reveal.in {
+	opacity: 1;
+	transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.js .reveal {
+		opacity: 1;
+		transform: none;
+		transition: none;
+	}
+}
+
+/* ---- Petals (created by the script when you click something with data-petals) ---- */
+.petal {
+	position: fixed;
+	left: 0;
+	top: 0;
+	z-index: 200;
+	pointer-events: none;
+	background: var(--gradient);
+	-webkit-mask: var(--petal-mask);
+	mask: var(--petal-mask);
+}

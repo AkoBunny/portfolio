@@ -18,15 +18,15 @@ const others = allProjects
 <Layout>
 	<div id="projects">
 		{featured.map((project) => (
-			<div class="panel">
+			<div class="panel reveal">
 				<ProjectFeature project={project} />
 			</div>
 		))}
 
 		{others.length > 0 && (
 			<section class="others">
-				<div class="divider" aria-hidden="true"></div>
-				<div class="panel carousel" data-carousel>
+				<div class="divider" data-petals aria-hidden="true"></div>
+				<div class="panel carousel reveal" data-carousel>
 					<div class="carousel-head">
 						<h2 class="carousel-title">Other projects</h2>
 						{others.length > 1 && (
@@ -85,7 +85,7 @@ const others = allProjects
 			linear-gradient(#1e2127, #1e2127) padding-box,
 			var(--gradient-flow) border-box;
 		background-size: auto, 200% 100%;
-		animation: flow 3s linear infinite;
+		animation: flow 1.5s linear infinite;
 	}
 
 	.carousel:has(.slide:hover) {
@@ -93,7 +93,7 @@ const others = allProjects
 			linear-gradient(#1e2127, #1e2127) padding-box,
 			var(--gradient-flow) border-box;
 		background-size: auto, 200% 100%;
-		animation: flow 3s linear infinite;
+		animation: flow 1.5s linear infinite;
 	}
 
 	/* Featured panels: the link stretches over the whole box, padding included */
@@ -209,17 +209,27 @@ const others = allProjects
 	}
 
 	.carousel-dot {
-		width: 12px;
-		height: 12px;
+		position: relative;
+		width: 20px;
+		height: 20px;
 		padding: 0;
 		border: 0;
 		border-radius: 50%;
-		background: #3a3f47;
+		background: none;
 		cursor: pointer;
 	}
 
-	.carousel-dot.active {
-		background: var(--accent);
+	.carousel-dot::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		background: #3a3f47;
+		-webkit-mask: var(--blossom-mask);
+		mask: var(--blossom-mask);
+	}
+
+	.carousel-dot.active::before {
+		background: var(--gradient);
 	}
 
 	@media (max-width: 600px) {
