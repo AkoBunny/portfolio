@@ -1,305 +1,256 @@
 ---
-import { getCollection, type CollectionEntry } from 'astro:content';
+import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
+import ProjectFeature from '../components/ProjectFeature.astro';
 
 const allProjects = await getCollection('projects');
 
-// Featured first, then newest first (the same rule the Projects page uses)
-const projects = allProjects.sort((a, b) => {
-	if (a.data.featured !== b.data.featured) {
-		return a.data.featured ? -1 : 1;
-	}
-	return b.data.date.getTime() - a.data.date.getTime();
-});
+// Featured projects get a big panel each; everything else goes in the carousel.
+// Both lists are newest first.
+const featured = allProjects
+	.filter((p) => p.data.featured)
+	.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 
-// Up to four tags per card: categories first, then the engine and tools
-const tagsFor = (project: CollectionEntry<'projects'>) => {
-	const tools = [project.data.engine, ...project.data.tools].filter(Boolean);
-	return [
-		...project.data.category.map((text) => ({ text, isTool: false })),
-		...[...new Set(tools)].map((text) => ({ text, isTool: true })),
-	].slice(0, 4);
-};
+const others = allProjects
+	.filter((p) => !p.data.featured)
+	.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 ---
 <Layout>
-	<section class="hero">
-		<div class="avatar">A</div>
-		<div class="hero-text">
-			<h1>Ako</h1>
-			<p class="role">Game Design Student — Systems &amp; Mechanics Design</p>
-			<p class="intro">
-				I design and build game mechanics and systems, with a focus on how
-				individual pieces interact to create something that feels good to
-				play. This site showcases my project work — finished, in-progress,
-				and everything I'm still learning.
-			</p>
-			<div class="cta-row">
-				<a class="btn btn-primary" href="/portfolio/resume.pdf">Resume</a>
-				<a class="btn" href="mailto:ako@pawlinska.pl">Email Me</a>
+	<div id="projects">
+		{featured.map((project) => (
+			<div class="panel">
+				<ProjectFeature project={project} />
 			</div>
-		</div>
-	</section>
+		))}
 
-	<section class="key-info">
-		<div class="key-info-item">
-			<span class="key-info-label">Studying at</span>
-			<span class="key-info-value">ARU</span>
-		</div>
-		<div class="key-info-item">
-			<span class="key-info-label">Focus areas</span>
-			<span class="key-info-value">Systems, Mechanics, UI</span>
-		</div>
-		<div class="key-info-item">
-			<span class="key-info-label">Tools</span>
-			<span class="key-info-value">Unity, Unreal Engine</span>
-		</div>
-	</section>
-
-	<section id="projects">
-		<h2 class="section-title">Projects</h2>
-		<div class="project-grid">
-			{projects.map((project) => (
-				<a href={`/portfolio/projects/${project.id}`} class="project-card">
-					<div class="card-thumb">
-						{project.data.coverImage
-							? <img src={project.data.coverImage} alt="" style={`object-position: ${project.data.coverImagePosition ?? 'center'};`} />
-							: <span class="thumb-placeholder">{project.data.title.charAt(0)}</span>}
-						{project.data.featured && <span class="badge">Featured</span>}
+		{others.length > 0 && (
+			<section class="others">
+				<div class="panel carousel" data-carousel>
+					<div class="carousel-head">
+						<h2 class="carousel-title">Other projects</h2>
+						{others.length > 1 && (
+							<span class="carousel-count">1 / {others.length}</span>
+						)}
 					</div>
-					<h3>{project.data.title}</h3>
-					{project.data.hook && <p class="hook">{project.data.hook}</p>}
-					<div class="tags">
-						{tagsFor(project).map((tag) => (
-							<span class:list={['tag', { 'tag-tool': tag.isTool }]}>{tag.text}</span>
+
+					<div class="carousel-track">
+						{others.map((project) => (
+							<div class="slide">
+								<ProjectFeature project={project} />
+							</div>
 						))}
 					</div>
-					<div class="card-footer">
-						<span class="status">{project.data.status}</span>
-						<span class="date">{project.data.date.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}</span>
-					</div>
-				</a>
-			))}
-		</div>
-	</section>
+
+					{others.length > 1 && (
+						<div class="carousel-controls">
+							<button type="button" class="carousel-btn carousel-prev" aria-label="Previous project">
+								<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+							</button>
+							<div class="carousel-dots">
+								{others.map((project, i) => (
+									<button type="button" class="carousel-dot" aria-label={`Show project ${i + 1}: ${project.data.title}`}></button>
+								))}
+							</div>
+							<button type="button" class="carousel-btn carousel-next" aria-label="Next project">
+								<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+							</button>
+						</div>
+					)}
+				</div>
+			</section>
+		)}
+	</div>
 </Layout>
 
 <style>
-	.hero {
-		display: flex;
-		gap: 2rem;
-		align-items: flex-start;
-		margin-bottom: 2.5rem;
-	}
-
-	.avatar {
-		flex: 0 0 96px;
-		width: 96px;
-		height: 96px;
-		border-radius: 50%;
-		background: var(--gradient);
-		color: #14161a;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		font-size: 2.5rem;
-		font-weight: 700;
-	}
-
-	.hero-text h1 {
-		margin: 0 0 0.2rem;
-	}
-
-	.role {
-		color: var(--accent);
-		font-weight: 600;
-		margin: 0 0 1rem;
-	}
-
-	.intro {
-		max-width: 55ch;
-		margin: 0 0 1.25rem;
-	}
-
-	.cta-row {
-		display: flex;
-		gap: 0.75rem;
-	}
-
-	.btn {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		line-height: 1;
-		padding: 0.6rem 1.3rem;
-		border-radius: 999px;
-		border: 1px solid var(--accent);
-		text-decoration: none;
-		font-weight: 600;
-	}
-
-	.btn:hover {
-		background: var(--gradient-flow);
-		background-size: 200% 100%;
-		animation: flow 2s linear infinite;
-		color: #14161a;
-	}
-
-	.key-info {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 1.5rem;
-		border-top: 1px solid #2a2d33;
-		border-bottom: 1px solid #2a2d33;
-		padding: 1rem 0;
-		margin-bottom: 2.5rem;
-	}
-
-	.key-info-item {
-		display: flex;
-		flex-direction: column;
-		gap: 0.15rem;
-	}
-
-	.key-info-label {
-		font-size: 0.75rem;
-		text-transform: uppercase;
-		letter-spacing: 0.03em;
-		color: #999;
-	}
-
-	.key-info-value {
-		font-weight: 600;
-	}
-
-	/* ---- Projects ---- */
-
-	.section-title {
-		margin: 0 0 1.25rem;
-		font-size: 2rem;
-		color: var(--accent-2);
-	}
-
-	/* As many columns as fit, each at least 300px wide, sharing leftover space equally */
-	.project-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-		gap: 1.5rem;
-	}
-
-	/* Card border: a transparent border sits over a background that is painted
-	   under the border area only, so changing that background recolours the border */
-	.project-card {
-		display: flex;
-		flex-direction: column;
-		padding: 0.9rem;
-		border: 2px solid transparent;
+	/* The box around each project. --pad is the side padding, defined once and
+	   reused by the carousel below so the two always match. */
+	.panel {
+		--pad: 2rem;
+		padding: 1.5rem var(--pad) 2rem;
+		background: #1e2127;
+		border: 1px solid #2a2d33;
 		border-radius: var(--radius);
-		background:
-			linear-gradient(#1e2127, #1e2127) padding-box,
-			#333 border-box;
-		text-decoration: none;
-		color: inherit;
+		margin-bottom: 1.75rem;
 	}
 
-	.project-card:hover {
-		background:
-			linear-gradient(#1e2127, #1e2127) padding-box,
-			var(--gradient) border-box;
+	.others {
+		margin-top: 3rem;
 	}
 
-	.project-card:focus-visible {
-		outline: 2px solid var(--accent);
-		outline-offset: 3px;
-	}
+	/* ---- Carousel ---- */
 
-	.project-card h3 {
-		margin: 0;
-		font-size: 1.3rem;
-	}
-
-	.project-card:hover h3 {
-		color: var(--accent-2);
-	}
-
-	.card-thumb {
-		position: relative;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		aspect-ratio: 16 / 9;
-		margin-bottom: 0.9rem;
-		border-radius: var(--radius-sm);
-		background: #14161a;
+	.carousel {
 		overflow: hidden;
 	}
 
-	.card-thumb img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-	}
-
-	.thumb-placeholder {
-		font-family: var(--font-heading);
-		font-size: 3rem;
-		font-weight: 600;
-		color: #444;
-	}
-
-	.badge {
-		position: absolute;
-		top: 0.6rem;
-		left: 0.6rem;
-		padding: 0.2rem 0.75rem;
-		border-radius: 999px;
-		background: var(--gradient);
-		color: #14161a;
-		font-family: var(--font-heading);
-		font-size: 0.8rem;
-		font-weight: 600;
-	}
-
-	.hook {
-		margin: 0.35rem 0 0.75rem;
-		color: #ccc;
-		font-size: 0.95rem;
-	}
-
-	.tags {
+	/* Header strip: title on the left, "1 / 3" on the right, a line underneath */
+	.carousel-head {
 		display: flex;
-		flex-wrap: wrap;
-		gap: 0.4rem;
-		margin-bottom: 1rem;
-	}
-
-	.tag {
-		font-size: 0.8rem;
-		padding: 0.2rem 0.7rem;
-		border-radius: 999px;
-		background: #14161a;
-		border: 1px solid #444;
-	}
-
-	.tag-tool {
-		border-color: var(--accent);
-	}
-
-	/* margin-top: auto pushes the footer to the bottom, so cards in a row line up */
-	.card-footer {
-		display: flex;
+		align-items: center;
 		justify-content: space-between;
-		margin-top: auto;
-		padding-top: 0.7rem;
-		border-top: 1px solid #2a2d33;
-		font-size: 0.85rem;
+		gap: 1rem;
+		margin-bottom: 1.5rem;
+		padding-bottom: 1rem;
+		border-bottom: 1px solid #2a2d33;
 	}
 
-	.status {
+	.carousel-title {
+		margin: 0;
+		font-size: 1.5rem;
+		color: var(--accent-2);
+	}
+
+	.carousel-count {
+		min-width: 3.5rem;
+		padding: 0.2rem 0.8rem;
+		text-align: center;
+		border: 1px solid var(--accent);
+		border-radius: 999px;
+		font-family: var(--font-heading);
+		font-size: 0.95rem;
 		color: var(--accent);
-		font-weight: 600;
 	}
 
-	.date {
-		color: #999;
+	/* The track stretches out to the edges of the box (negative margin) and puts
+	   the padding back inside itself, so slides slide all the way to the edge and
+	   a sliver of the next one peeks in at the side. */
+	.carousel-track {
+		display: flex;
+		gap: var(--pad);
+		margin-inline: calc(var(--pad) * -1);
+		padding-inline: var(--pad);
+		overflow-x: auto;
+		scroll-snap-type: x mandatory;
+		scroll-padding-inline: var(--pad);
+		scrollbar-width: none;
+	}
+
+	.carousel-track::-webkit-scrollbar {
+		display: none;
+	}
+
+	.slide {
+		flex: 0 0 100%;
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-start;
+		scroll-snap-align: start;
+		scroll-snap-stop: always;
+	}
+
+	.carousel-controls {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 1rem;
+		margin-top: 1.5rem;
+	}
+
+	.carousel-btn {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 2.5rem;
+		height: 2.5rem;
+		padding: 0;
+		border-radius: 50%;
+		border: 1px solid var(--accent);
+		background: transparent;
+		color: var(--accent);
+		cursor: pointer;
+	}
+
+	.carousel-btn:hover {
+		background: var(--accent);
+		color: #14161a;
+	}
+
+	.carousel-btn:focus-visible,
+	.carousel-dot:focus-visible {
+		outline: 2px solid var(--accent);
+		outline-offset: 2px;
+	}
+
+	.carousel-dots {
+		display: flex;
+		gap: 0.5rem;
+	}
+
+	.carousel-dot {
+		width: 12px;
+		height: 12px;
+		padding: 0;
+		border: 0;
+		border-radius: 50%;
+		background: #3a3f47;
+		cursor: pointer;
+	}
+
+	.carousel-dot.active {
+		background: var(--accent);
+	}
+
+	@media (max-width: 600px) {
+		.panel {
+			--pad: 1rem;
+		}
 	}
 </style>
+
+<script>
+	document.querySelectorAll<HTMLElement>('[data-carousel]').forEach((carousel) => {
+		const track = carousel.querySelector<HTMLElement>('.carousel-track');
+		const prev = carousel.querySelector<HTMLButtonElement>('.carousel-prev');
+		const next = carousel.querySelector<HTMLButtonElement>('.carousel-next');
+		const counter = carousel.querySelector<HTMLElement>('.carousel-count');
+		const dots = Array.from(carousel.querySelectorAll<HTMLButtonElement>('.carousel-dot'));
+
+		// With only one slide there are no buttons, so there is nothing to wire up
+		if (!track || !prev || !next) return;
+
+		const slides = Array.from(track.children) as HTMLElement[];
+		const count = slides.length;
+		const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+		// Distance from the start of one slide to the start of the next (slide width + gap)
+		const step = () => slides[1].offsetLeft - slides[0].offsetLeft;
+
+		// Scrolled distance / step = which slide we are on
+		const currentIndex = () => Math.round(track.scrollLeft / step());
+
+		// The % trick wraps around: before the first slide is the last, after the last is the first
+		const goTo = (index: number) => {
+			const wrapped = (index + count) % count;
+			track.scrollTo({
+				left: wrapped * step(),
+				behavior: reduceMotion ? 'auto' : 'smooth',
+			});
+		};
+
+		const update = () => {
+			const i = currentIndex();
+			dots.forEach((dot, n) => dot.classList.toggle('active', n === i));
+			if (counter) counter.textContent = `${i + 1} / ${count}`;
+		};
+
+		prev.addEventListener('click', () => goTo(currentIndex() - 1));
+		next.addEventListener('click', () => goTo(currentIndex() + 1));
+		dots.forEach((dot, n) => dot.addEventListener('click', () => goTo(n)));
+		track.addEventListener('scroll', update, { passive: true });
+		update();
+
+		// Give every title and hook the height of the tallest one, so the media
+		// frames line up from slide to slide
+		const equalise = () => {
+			for (const selector of ['.feature-title', '.feature-hook']) {
+				const els = Array.from(track.querySelectorAll<HTMLElement>(selector));
+				els.forEach((el) => (el.style.minHeight = ''));
+				const tallest = Math.max(0, ...els.map((el) => el.offsetHeight));
+				els.forEach((el) => (el.style.minHeight = `${tallest}px`));
+			}
+		};
+		equalise();
+		new ResizeObserver(equalise).observe(track);
+		document.fonts.ready.then(equalise);	});
+</script>

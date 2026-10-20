@@ -45,8 +45,7 @@ const infoItems = [
 	{ icon: icons.playtests, label: 'Playtests', value: project.data.playtests?.toString() },
 ].filter((item) => item.value);
 ---
-<Layout>
-	<a href="/portfolio/projects">← Back to Projects</a>
+<Layout title={`${project.data.title} | Ako`}>
 
 	<div class="project-main">
 		<h1>{project.data.title}</h1>
