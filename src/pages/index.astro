@@ -25,6 +25,7 @@ const others = allProjects
 
 		{others.length > 0 && (
 			<section class="others">
+				<div class="divider" aria-hidden="true"></div>
 				<div class="panel carousel" data-carousel>
 					<div class="carousel-head">
 						<h2 class="carousel-title">Other projects</h2>
@@ -68,14 +69,44 @@ const others = allProjects
 	.panel {
 		--pad: 2rem;
 		padding: 1.5rem var(--pad) 2rem;
-		background: #1e2127;
-		border: 1px solid #2a2d33;
+		border: 2px solid transparent;
 		border-radius: var(--radius);
+		background:
+			linear-gradient(#1e2127, #1e2127) padding-box,
+			#2a2d33 border-box;
 		margin-bottom: 1.75rem;
 	}
 
+	/* Hovering a clickable panel turns its border into the flowing gradient.
+	   These are two separate rules on purpose: if one selector in a comma-separated
+	   list is invalid, the browser throws away the whole rule. */
+	.panel:not(.carousel):hover {
+		background:
+			linear-gradient(#1e2127, #1e2127) padding-box,
+			var(--gradient-flow) border-box;
+		background-size: auto, 200% 100%;
+		animation: flow 3s linear infinite;
+	}
+
+	.carousel:has(.slide:hover) {
+		background:
+			linear-gradient(#1e2127, #1e2127) padding-box,
+			var(--gradient-flow) border-box;
+		background-size: auto, 200% 100%;
+		animation: flow 3s linear infinite;
+	}
+
+	/* Featured panels: the link stretches over the whole box, padding included */
+	.panel:not(.carousel) {
+		position: relative;
+	}
+
+	.panel:not(.carousel) :global(.feature) {
+		position: static;
+	}
+
 	.others {
-		margin-top: 3rem;
+		margin-top: 0;
 	}
 
 	/* ---- Carousel ---- */

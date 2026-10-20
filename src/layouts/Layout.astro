@@ -52,6 +52,11 @@ const { title = 'Ako | Game Design Portfolio' } = Astro.props;
 		--font-heading: Fredoka Variable, system-ui, sans-serif;
 		--radius: 18px;
 		--radius-sm: 12px;
+		--glow: rgba(255,183,197,0.12);
+		--divider-mask:
+			url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cdefs%3E%3Cpath id='p' d='M12 12C7.8 9.6 7.6 4.6 10.2 3.2C11 2.8 11.6 3.3 12 4C12.4 3.3 13 2.8 13.8 3.2C16.4 4.6 16.2 9.6 12 12Z'/%3E%3C/defs%3E%3Cuse href='%23p'/%3E%3Cuse href='%23p' transform='rotate(72 12 12)'/%3E%3Cuse href='%23p' transform='rotate(144 12 12)'/%3E%3Cuse href='%23p' transform='rotate(216 12 12)'/%3E%3Cuse href='%23p' transform='rotate(288 12 12)'/%3E%3Ccircle cx='12' cy='12' r='1.6'/%3E%3C/svg%3E") center / 28px 28px no-repeat,
+			linear-gradient(90deg, transparent, #000) left center / calc(50% - 28px) 1px no-repeat,
+			linear-gradient(90deg, #000, transparent) right center / calc(50% - 28px) 1px no-repeat;
 	}
 
 	html {
@@ -75,7 +80,7 @@ const { title = 'Ako | Game Design Portfolio' } = Astro.props;
 	}
 
 	body {
-		background-image: radial-gradient(ellipse at top, rgba(255, 183, 197, 0.12), transparent 55%);
+		background-image: radial-gradient(ellipse at top, var(--glow), transparent 55%);
 		background-repeat: no-repeat;
 		background-attachment: fixed;
 	}
@@ -224,6 +229,14 @@ const { title = 'Ako | Game Design Portfolio' } = Astro.props;
 </style>
 
 <style is:global>
+
+.divider {
+        height: 28px;
+        margin: 2rem 0;
+        background: var(--gradient);
+        -webkit-mask: var(--divider-mask);
+        mask: var(--divider-mask);
+    }
 
     @keyframes flow {
         to {
