@@ -94,7 +94,10 @@ const pills = [
 		align-items: center;
 		justify-content: center;		text-align: center;
 		font-size: 2.2rem;
-		background: var(--gradient);
+		background: var(--gradient-flow);
+		background-size: 200% 100%;
+		animation: flow 6s linear infinite;
+		text-wrap: balance;
 		-webkit-background-clip: text;
 		background-clip: text;
 		color: transparent;
@@ -102,7 +105,7 @@ const pills = [
 
 	.feature-hook {
 		max-width: 60ch;
-		margin: 0 auto 1.5rem;
+		text-wrap: balance;		margin: 0 auto 1.5rem;
 		display: flex;
 		align-items: center;
 		justify-content: center;		text-align: center;
@@ -254,4 +257,25 @@ const pills = [
 			font-size: 1.8rem;
 		}
 	}
+
+	/* Make the whole panel clickable: the button's link stretches over the panel.
+	   The video sits above it so it can still be played. */
+	.feature {
+		position: relative;
+	}
+
+	.view-btn::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+	}
+
+	.feature-video {
+		z-index: 1;
+	}
+
+	.feature:hover .view-btn {
+		animation: flow 2s linear infinite;
+	}
+
 </style>
