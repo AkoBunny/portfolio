@@ -15,8 +15,23 @@ const revealObserver = new IntersectionObserver(
 	{ threshold: 0.12 },
 );
 
+// Home page panels already carry class "reveal" in their markup
 document.querySelectorAll<HTMLElement>('.reveal').forEach((item) => revealObserver.observe(item));
 
+// Case-study content comes from Markdown, so we add the class from here. Only blocks
+// that start below the visible screen get it, so nothing flashes on load.
+function revealCaseStudy() {
+	document.querySelectorAll<HTMLElement>('.case-study > *').forEach((block) => {
+		if (block.getBoundingClientRect().top < window.innerHeight) return;
+		block.classList.add('reveal');
+		revealObserver.observe(block);
+	});
+}
+
+// Wait until the page has fully loaded, because the gallery script rearranges its
+// images and we want to see the final layout
+if (document.readyState === 'complete') revealCaseStudy();
+else window.addEventListener('load', revealCaseStudy);
 // ---------- Petal burst (a small particle system) ----------
 // Each petal is a bundle of numbers: where it is, how fast it is moving, how it
 // is spinning, how old it is. Every frame we update those numbers and draw it.
