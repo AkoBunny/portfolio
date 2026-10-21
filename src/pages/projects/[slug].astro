@@ -198,48 +198,96 @@ const infoItems = [
 		position: fixed;
 		bottom: 1.5rem;
 		left: 1.5rem;
-		background: #1e2127;
+		max-width: 270px;
+		padding: 0.6rem 1rem;
+		background: rgba(30, 33, 39, 0.88);
+		backdrop-filter: blur(10px);
 		border: 1px solid #444;
 		border-radius: var(--radius);
-		padding: 0.6rem 1rem;
-		max-width: 270px;
+		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 		z-index: 10;
 	}
 
 	.toc-float summary {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		list-style: none;
 		cursor: pointer;
 		font-weight: 600;
 		font-size: 0.8rem;
 		text-transform: uppercase;
 		letter-spacing: 0.03em;
-		color: #999;
+		color: var(--accent-2);
+	}
+
+	.toc-float summary::-webkit-details-marker {
+		display: none;
+	}
+
+	.toc-float summary::before {
+		content: "";
+		width: 1rem;
+		height: 1rem;
+		background: var(--gradient);
+		-webkit-mask: var(--blossom-mask);
+		mask: var(--blossom-mask);
+		transition: transform 0.3s ease;
+	}
+
+	.toc-float[open] summary::before {
+		transform: rotate(72deg);
 	}
 
 	.toc-float ul {
-		list-style: disc;
+		list-style: none;
 		margin: 0.75rem 0 0.25rem;
-		padding: 0 0.5rem 0 1.1rem;
+		padding: 0;
 		max-height: 50vh;
 		overflow-y: auto;
 	}
 
-	.toc-float li::marker {
-		color: var(--accent);
-	}
-
 	.toc-float li + li {
-		margin-top: 0.8rem;
+		margin-top: 0.15rem;
 	}
 
 	.toc-float a {
+		display: flex;
+		align-items: center;
+		gap: 0.6rem;
+		padding: 0.4rem 0.5rem;
+		border-radius: var(--radius-sm);
 		color: #e6e6e6;
 		text-decoration: none;
 		font-size: 0.95rem;
 		line-height: 1.35;
 	}
 
-	.toc-float a:hover {
+	.toc-float a::before {
+		content: "";
+		flex: 0 0 0.8rem;
+		height: 0.8rem;
+		background: #3a3f47;
+		-webkit-mask: var(--blossom-mask);
+		mask: var(--blossom-mask);
+	}
+
+	.toc-float a:hover,
+	.toc-float a.active {
 		color: var(--accent);
+		background: rgba(255, 255, 255, 0.05);
+	}
+
+	.toc-float a:hover::before {
+		background: var(--gradient);
+	}
+
+	.toc-float a.active::before {
+		flex-basis: 0.95rem;
+		height: 0.95rem;
+		background: var(--gradient);
+		-webkit-mask: var(--sparkle-mask);
+		mask: var(--sparkle-mask);
 	}
 
 	.subtitle {
@@ -626,17 +674,27 @@ const infoItems = [
 	}
 
 	:global(.gallery-dot) {
-		width: 12px;
-		height: 12px;
+		position: relative;
+		width: 20px;
+		height: 20px;
 		padding: 0;
 		border: 0;
 		border-radius: 50%;
-		background: #3a3f47;
+		background: none;
 		cursor: pointer;
 	}
 
-	:global(.gallery-dot.active) {
-		background: var(--accent);
+	:global(.gallery-dot::before) {
+		content: "";
+		position: absolute;
+		inset: 0;
+		background: #3a3f47;
+		-webkit-mask: var(--blossom-mask);
+		mask: var(--blossom-mask);
+	}
+
+	:global(.gallery-dot.active::before) {
+		background: var(--gradient);
 	}
 
 	/* ---- Gradient frames around images and video ---- */

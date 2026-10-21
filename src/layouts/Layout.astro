@@ -1,6 +1,7 @@
 ---
 import '@fontsource-variable/fredoka';
 import '../styles/decor.css';
+import '../styles/extras.css';
 
 interface Props {
 	title?: string;
@@ -17,7 +18,13 @@ const { title = 'Ako | Game Design Portfolio' } = Astro.props;
 		<link rel="icon" type="image/svg+xml" href="/portfolio/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
-			<script is:inline>document.documentElement.classList.add('js');</script>
+			<script is:inline>
+					document.documentElement.classList.add('js');
+					try {
+						const palette = localStorage.getItem('palette');
+						if (palette) document.documentElement.dataset.theme = palette;
+					} catch (e) {}
+				</script>
 	</head>
 	<body>
 		<header class="site-header">
@@ -103,7 +110,8 @@ const { title = 'Ako | Game Design Portfolio' } = Astro.props;
 		position: sticky;
 		top: 0;
 		z-index: 20;
-		background: #14161a;
+		background: rgba(20, 22, 26, 0.82);
+		backdrop-filter: blur(12px);
 	}
 
 	.site-header::after {
@@ -280,4 +288,5 @@ const { title = 'Ako | Game Design Portfolio' } = Astro.props;
 
 <script>
 	import '../scripts/decor.ts';
+		import '../scripts/extras.ts';
 </script>
