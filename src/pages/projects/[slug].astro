@@ -54,12 +54,11 @@ const infoItems = [
 
 		<div class:list={['project-hero', { 'has-media': hasMedia }]}>
 			{project.data.heroVideo ? (
-				<div class="video-embed hero-media">
-					<iframe
-						src={`https://www.youtube-nocookie.com/embed/${project.data.heroVideo}`}
-						title={project.data.title}
-						allowfullscreen
-					></iframe>
+				<div class="video-embed hero-media" data-video={project.data.heroVideo}>
+					<button type="button" class="video-poster" aria-label={`Play video: ${project.data.title}`}>
+						<img src={project.data.coverImage ?? `https://i.ytimg.com/vi/${project.data.heroVideo}/hqdefault.jpg`} alt="" />
+						<span class="video-play" aria-hidden="true"></span>
+					</button>
 				</div>
 			) : project.data.coverImage ? (
 				<img class="hero-media hero-image" src={project.data.coverImage} alt="" />
@@ -722,7 +721,9 @@ const infoItems = [
 
 <script>
 	// Before / after sliders
-	document.querySelectorAll<HTMLElement>('.compare').forEach((el) => {
+	document.addEventListener('astro:page-load', () => initCompare());
+
+		const initCompare = () => document.querySelectorAll<HTMLElement>('.compare').forEach((el) => {
 		let pos = 50;
 
 		const apply = (value: number) => {
@@ -754,7 +755,9 @@ const infoItems = [
 	});
 
 	// Gallery arrows and dots
-	document.querySelectorAll<HTMLElement>('.gallery').forEach((gallery) => {
+	document.addEventListener('astro:page-load', () => initGalleries());
+
+		const initGalleries = () => document.querySelectorAll<HTMLElement>('.gallery').forEach((gallery) => {
 		const slides = Array.from(gallery.querySelectorAll<HTMLElement>('img'));
 		if (slides.length < 2) return;
 
@@ -1059,7 +1062,11 @@ const infoItems = [
 		<div class="lb-caption"></div>
 	`;
 	document.body.appendChild(root);
-
+	// Page changes replace <body>, so put the image viewer back each time
+	document.addEventListener('astro:after-swap', () => {
+		// Only case-study pages carry the viewer's styles, so only put it back there
+		if (document.querySelector('.case-study, .hero-image')) document.body.appendChild(root);
+	});
 	const q = <T extends HTMLElement>(selector: string) => root.querySelector(selector) as T;
 	const stage = q<HTMLElement>('.lb-stage');
 	const img = q<HTMLImageElement>('.lb-img');
@@ -1336,7 +1343,10 @@ const infoItems = [
 	// Stop the browser from "picking up" the image when you drag it
 	root.addEventListener('dragstart', (e) => e.preventDefault());
 
-	// ---- Make every case-study image open the viewer ----
+	// ---- Make every case-study image open the viewer (set up again after every page change) ----
+	document.addEventListener('astro:page-load', () => initImages());
+
+	const initImages = () =>
 	document
 		.querySelectorAll<HTMLImageElement>('.case-study img, .hero-image')
 		.forEach((el) => {

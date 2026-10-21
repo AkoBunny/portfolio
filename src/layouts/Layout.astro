@@ -1,7 +1,9 @@
 ---
 import '@fontsource-variable/fredoka';
+import { ClientRouter } from 'astro:transitions';
 import '../styles/decor.css';
 import '../styles/extras.css';
+import '../styles/motion.css';
 
 interface Props {
 	title?: string;
@@ -17,6 +19,7 @@ const { title = 'Ako | Game Design Portfolio' } = Astro.props;
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/portfolio/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
+			<ClientRouter />
 		<title>{title}</title>
 			<script is:inline>
 					document.documentElement.classList.add('js');
@@ -289,4 +292,6 @@ const { title = 'Ako | Game Design Portfolio' } = Astro.props;
 <script>
 	import '../scripts/decor.ts';
 		import '../scripts/extras.ts';
+			import '../scripts/motion.ts';
+				import '../scripts/video.ts';
 </script>

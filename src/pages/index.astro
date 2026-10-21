@@ -240,58 +240,5 @@ const others = allProjects
 </style>
 
 <script>
-	document.querySelectorAll<HTMLElement>('[data-carousel]').forEach((carousel) => {
-		const track = carousel.querySelector<HTMLElement>('.carousel-track');
-		const prev = carousel.querySelector<HTMLButtonElement>('.carousel-prev');
-		const next = carousel.querySelector<HTMLButtonElement>('.carousel-next');
-		const counter = carousel.querySelector<HTMLElement>('.carousel-count');
-		const dots = Array.from(carousel.querySelectorAll<HTMLButtonElement>('.carousel-dot'));
-
-		// With only one slide there are no buttons, so there is nothing to wire up
-		if (!track || !prev || !next) return;
-
-		const slides = Array.from(track.children) as HTMLElement[];
-		const count = slides.length;
-		const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-		// Distance from the start of one slide to the start of the next (slide width + gap)
-		const step = () => slides[1].offsetLeft - slides[0].offsetLeft;
-
-		// Scrolled distance / step = which slide we are on
-		const currentIndex = () => Math.round(track.scrollLeft / step());
-
-		// The % trick wraps around: before the first slide is the last, after the last is the first
-		const goTo = (index: number) => {
-			const wrapped = (index + count) % count;
-			track.scrollTo({
-				left: wrapped * step(),
-				behavior: reduceMotion ? 'auto' : 'smooth',
-			});
-		};
-
-		const update = () => {
-			const i = currentIndex();
-			dots.forEach((dot, n) => dot.classList.toggle('active', n === i));
-			if (counter) counter.textContent = `${i + 1} / ${count}`;
-		};
-
-		prev.addEventListener('click', () => goTo(currentIndex() - 1));
-		next.addEventListener('click', () => goTo(currentIndex() + 1));
-		dots.forEach((dot, n) => dot.addEventListener('click', () => goTo(n)));
-		track.addEventListener('scroll', update, { passive: true });
-		update();
-
-		// Give every title and hook the height of the tallest one, so the media
-		// frames line up from slide to slide
-		const equalise = () => {
-			for (const selector of ['.feature-title', '.feature-hook']) {
-				const els = Array.from(track.querySelectorAll<HTMLElement>(selector));
-				els.forEach((el) => (el.style.minHeight = ''));
-				const tallest = Math.max(0, ...els.map((el) => el.offsetHeight));
-				els.forEach((el) => (el.style.minHeight = `${tallest}px`));
-			}
-		};
-		equalise();
-		new ResizeObserver(equalise).observe(track);
-		document.fonts.ready.then(equalise);	});
+	import '../scripts/carousel.ts';
 </script>

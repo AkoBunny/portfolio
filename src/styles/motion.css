@@ -1,0 +1,135 @@
+/* Ambient petals, the hover zoom and the page-change animation. Imported from Layout.astro. */
+
+/* ---- Ambient petals ----
+   A fixed layer behind all the page content. z-index -1 puts it above the page
+   background but below the panels, so petals only show where nothing covers them. */
+.ambient {
+	position: fixed;
+	inset: 0;
+	z-index: -1;
+	overflow: hidden;
+	pointer-events: none;
+}
+
+.mote {
+	position: absolute;
+	left: 0;
+	top: 0;
+	will-change: transform, opacity;
+}
+
+.mote-petal {
+	background: var(--gradient);
+	-webkit-mask: var(--petal-mask);
+	mask: var(--petal-mask);
+	-webkit-mask-size: 88%;
+	mask-size: 88%;
+}
+
+.mote-sparkle {
+	background: var(--accent);
+	-webkit-mask: var(--sparkle-mask);
+	mask: var(--sparkle-mask);
+	-webkit-mask-size: 88%;
+	mask-size: 88%;
+}
+
+/* ---- Hover zoom ----
+   Hovering a panel slowly zooms its image INSIDE its frame. The frame stays put and
+   clips the image, so nothing can get cut off. */
+.feature-media img {
+	transition: transform 0.6s ease;
+}
+
+.feature:hover .feature-media img {
+	transform: scale(1.05);
+}
+
+/* ---- Page changes ----
+   The old page fades out quickly and the new one fades in. The header and anything else
+   that looks the same on both pages stays visually still. */
+::view-transition-old(root) {
+	animation-duration: 0.18s;
+}
+
+::view-transition-new(root) {
+	animation-duration: 0.3s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.feature-media img {
+		transition: none;
+	}
+
+	.feature:hover .feature-media img {
+		transform: none;
+	}
+
+	::view-transition-group(*),
+	::view-transition-old(*),
+	::view-transition-new(*) {
+		animation: none !important;
+	}
+}
+
+/* ---- Click-to-play video posters (Home panels and case-study heroes) ----
+   These are global because the player (iframe) is created by a script, and Astro's
+   per-component styles don't reach elements a script creates. */
+.video-poster {
+	position: absolute;
+	inset: 0;
+	display: block;
+	width: 100%;
+	height: 100%;
+	padding: 0;
+	border: 0;
+	background: #000;
+	cursor: pointer;
+}
+
+.video-poster img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.video-play {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 64px;
+	height: 64px;
+	transform: translate(-50%, -50%);
+	border-radius: 50%;
+	background: var(--gradient);
+	transition: transform 0.2s ease;
+}
+
+.video-play::before {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 54%;
+	transform: translate(-50%, -50%);
+	border-left: 18px solid #14161a;
+	border-top: 11px solid transparent;
+	border-bottom: 11px solid transparent;
+}
+
+.video-poster:hover .video-play {
+	transform: translate(-50%, -50%) scale(1.1);
+}
+
+.video-poster:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: -4px;
+}
+
+.feature-video iframe {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	border: 0;
+}

@@ -1,4 +1,8 @@
 // Decoration scripts shared by every page: the soft scroll-in and the petal burst.
+//
+// The site now changes pages without reloading (Astro's router). That means a script
+// only runs once, so anything that depends on the CURRENT page's elements has to run
+// on "astro:page-load", which fires on the first load and after every page change.
 
 // ---------- Soft scroll-in ----------
 // An IntersectionObserver is a browser feature that tells you when an element
@@ -15,11 +19,8 @@ const revealObserver = new IntersectionObserver(
 	{ threshold: 0.12 },
 );
 
-// Home page panels already carry class "reveal" in their markup
-document.querySelectorAll<HTMLElement>('.reveal').forEach((item) => revealObserver.observe(item));
-
 // Case-study content comes from Markdown, so we add the class from here. Only blocks
-// that start below the visible screen get it, so nothing flashes on load.
+// that start below the visible screen get it, so nothing flashes.
 function revealCaseStudy() {
 	document.querySelectorAll<HTMLElement>('.case-study > *').forEach((block) => {
 		if (block.getBoundingClientRect().top < window.innerHeight) return;
@@ -28,10 +29,25 @@ function revealCaseStudy() {
 	});
 }
 
-// Wait until the page has fully loaded, because the gallery script rearranges its
-// images and we want to see the final layout
-if (document.readyState === 'complete') revealCaseStudy();
-else window.addEventListener('load', revealCaseStudy);
+document.addEventListener('astro:page-load', () => {
+	document.querySelectorAll<HTMLElement>('.reveal').forEach((item) => revealObserver.observe(item));
+
+	// Wait until the page has finished loading (images, the gallery script) before measuring
+	requestAnimationFrame(() => {
+		if (document.readyState === 'complete') revealCaseStudy();
+		else window.addEventListener('load', revealCaseStudy, { once: true });
+	});
+});
+
+// When the page changes, make the first two panels of the new page visible straight
+// away, so the page transition shows real content instead of empty space.
+document.addEventListener('astro:before-swap', (event: Event) => {
+	const { newDocument } = event as Event & { newDocument: Document };
+	newDocument.querySelectorAll('.reveal').forEach((item, i) => {
+		if (i < 2) item.classList.add('in');
+	});
+});
+
 // ---------- Petal burst (a small particle system) ----------
 // Each petal is a bundle of numbers: where it is, how fast it is moving, how it
 // is spinning, how old it is. Every frame we update those numbers and draw it.
@@ -138,15 +154,18 @@ function tick(now: number) {
 // Anything with a data-petals attribute showers petals when clicked
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-document.addEventListener('click', (event) => {
+function onPetalClick(event: MouseEvent) {
 	const trigger = (event.target as HTMLElement).closest<HTMLElement>('[data-petals]');
 	if (!trigger) return;
 
-	// The avatar is also the "home" link. If we are already home, shower petals
-	// and scroll to the top instead of reloading the page.
+	// The avatar is also the "home" link. If we are already home, shower petals and
+	// scroll to the top instead of navigating. stopPropagation matters here: without it
+	// the page router would "navigate" to the page we're already on, swapping the whole
+	// page and wiping the petals the instant they appear.
 	const onHome = location.pathname.replace(/\/$/, '') === '/portfolio';
 	if (trigger.closest('a') && onHome) {
 		event.preventDefault();
+		event.stopPropagation();
 		window.scrollTo({ top: 0, behavior: reduceMotion.matches ? 'auto' : 'smooth' });
 	}
 
@@ -154,4 +173,10 @@ document.addEventListener('click', (event) => {
 
 	const rect = trigger.getBoundingClientRect();
 	burst(rect.left + rect.width / 2, rect.top + rect.height / 2);
-});
+}
+
+// "true" = capture phase: this runs BEFORE the page router's own click handler
+document.addEventListener('click', onPetalClick, true);
+
+// Marks this file as a module, so its names don't clash with other scripts in the editor
+export {};

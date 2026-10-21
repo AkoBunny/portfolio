@@ -1,5 +1,8 @@
 // Extra UI and decoration: palette switcher, back-to-top button, reading progress,
 // and the behaviour of the "Skip to..." menu.
+//
+// The site changes pages without reloading, so this file runs once. Things that live
+// in <body> or depend on the current page are set up again on each page change.
 
 const root = document.documentElement;
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -43,7 +46,6 @@ paletteBtn.addEventListener('click', () => {
 });
 
 showPalette();
-document.body.appendChild(paletteBtn);
 
 // ---------- Back to top ----------
 // The data-petals attribute makes the petal burst in decor.ts fire when it is clicked
@@ -55,23 +57,31 @@ toTop.setAttribute('data-petals', '');
 toTop.addEventListener('click', () => {
 	window.scrollTo({ top: 0, behavior: reduceMotion.matches ? 'auto' : 'smooth' });
 });
-document.body.appendChild(toTop);
 
-// ---------- Reading progress (case-study pages only) ----------
-const isCaseStudy = document.querySelector('.case-study') !== null;
-const header = document.querySelector<HTMLElement>('.site-header');
-
-if (isCaseStudy && header) {
-	root.classList.add('has-progress');
-	const bar = document.createElement('div');
-	bar.className = 'read-progress';
-	header.appendChild(bar);
+// Both buttons live in <body>, which is replaced on every page change, so we put
+// the same two buttons back each time.
+function attachFloatingButtons() {
+	document.body.append(paletteBtn, toTop);
 }
 
-// ---------- "Skip to..." menu ----------
-const toc = document.querySelector<HTMLDetailsElement>('.toc-float');
-const tocLinks = toc ? Array.from(toc.querySelectorAll<HTMLAnchorElement>('a')) : [];
-const tocHeadings = tocLinks.map((link) => document.getElementById(decodeURIComponent(link.hash.slice(1))));
+attachFloatingButtons();
+document.addEventListener('astro:after-swap', attachFloatingButtons);
+
+// ---------- Keep the <html> settings across page changes ----------
+// A page change copies the new page's <html> attributes over the old ones, which would
+// wipe our palette and the "js" marker. So we set them on the new page before it swaps in.
+document.addEventListener('astro:before-swap', (event: Event) => {
+	const { newDocument } = event as Event & { newDocument: Document };
+	const nextRoot = newDocument.documentElement;
+	nextRoot.classList.add('js');
+	nextRoot.dataset.theme = PALETTES[paletteIndex].id;
+	if (newDocument.querySelector('.case-study')) nextRoot.classList.add('has-progress');
+});
+
+// ---------- Things that belong to the current page ----------
+let isCaseStudy = false;
+let tocLinks: HTMLAnchorElement[] = [];
+let tocHeadings: (HTMLElement | null)[] = [];
 
 // The current section is the last heading that has scrolled above 35% of the screen
 function updateActive() {
@@ -83,10 +93,7 @@ function updateActive() {
 	tocLinks.forEach((link, i) => link.classList.toggle('active', i === current));
 }
 
-// Close the menu after picking a section so it doesn't cover the content
-tocLinks.forEach((link) => link.addEventListener('click', () => toc?.removeAttribute('open')));
-
-// ---------- One scroll handler for everything that reacts to scrolling ----------
+// One scroll handler for everything that reacts to scrolling
 function onScroll() {
 	const y = window.scrollY;
 	toTop.classList.toggle('show', y > 600);
@@ -99,6 +106,46 @@ function onScroll() {
 	updateActive();
 }
 
+function initPage() {
+	// Reading progress line (case-study pages only)
+	isCaseStudy = document.querySelector('.case-study') !== null;
+	root.classList.toggle('has-progress', isCaseStudy);
+	document.querySelectorAll('.read-progress').forEach((bar) => bar.remove());
+
+	const header = document.querySelector<HTMLElement>('.site-header');
+	if (isCaseStudy && header) {
+		const bar = document.createElement('div');
+		bar.className = 'read-progress';
+		header.appendChild(bar);
+	}
+
+	// "Skip to..." menu: close it after picking a section so it doesn't cover the content
+	const toc = document.querySelector<HTMLDetailsElement>('.toc-float');
+	tocLinks = toc ? Array.from(toc.querySelectorAll<HTMLAnchorElement>('a')) : [];
+	tocHeadings = tocLinks.map((link) => document.getElementById(decodeURIComponent(link.hash.slice(1))));
+	tocLinks.forEach((link) => link.addEventListener('click', () => toc?.removeAttribute('open')));
+
+	onScroll();
+}
+
 window.addEventListener('scroll', onScroll, { passive: true });
 window.addEventListener('resize', onScroll);
-onScroll();
+document.addEventListener('astro:page-load', initPage);
+
+// ---------- Safety net for page changes ----------
+// If a page change hasn't finished 5 seconds after the click, give up on the in-place
+// swap and load the page the normal way, so you never get stuck.
+let navTimer: number | undefined;
+
+document.addEventListener('astro:before-preparation', (event: Event) => {
+	const { to } = event as Event & { to: URL };
+	window.clearTimeout(navTimer);
+	navTimer = window.setTimeout(() => {
+		window.location.href = to.href;
+	}, 5000);
+});
+
+document.addEventListener('astro:page-load', () => window.clearTimeout(navTimer));
+
+// Marks this file as a module, so its names don't clash with other scripts in the editor
+export {};
