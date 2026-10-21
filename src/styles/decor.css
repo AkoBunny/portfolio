@@ -35,7 +35,7 @@
    script adds class "in". They are only hidden once the page script has marked
    <html> with the "js" class, so nothing stays invisible if scripts fail to run. */
 .js .reveal {
-	opacity: 0;
+	opacity: 0.3;
 	transform: translateY(1.25rem);
 	transition: opacity 0.7s ease, transform 0.7s ease;
 }

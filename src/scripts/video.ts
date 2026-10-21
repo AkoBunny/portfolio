@@ -23,5 +23,18 @@ document.addEventListener('click', (event) => {
 	poster.replaceWith(iframe);
 });
 
+// Warm up the connection to YouTube the first time the pointer reaches a poster
+let warmed = false;
+document.addEventListener('pointerover', (event) => {
+	if (warmed || !(event.target as HTMLElement).closest('.video-poster')) return;
+	warmed = true;
+	for (const href of ['https://www.youtube-nocookie.com', 'https://i.ytimg.com']) {
+		const link = document.createElement('link');
+		link.rel = 'preconnect';
+		link.href = href;
+		document.head.appendChild(link);
+	}
+});
+
 // Marks this file as a module, so its names don't clash with other scripts in the editor
 export {};
