@@ -45,7 +45,7 @@ const infoItems = [
 	{ icon: icons.playtests, label: 'Playtests', value: project.data.playtests?.toString() },
 ].filter((item) => item.value);
 ---
-<Layout title={`${project.data.title} | Ako`}>
+<Layout title={`${project.data.title} | Ako`} description={project.data.hook}>
 
 	<div class="project-main">
 		<h1>{project.data.title}</h1>

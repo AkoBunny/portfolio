@@ -7,9 +7,15 @@ import '../styles/motion.css';
 
 interface Props {
 	title?: string;
+		description?: string;
 }
 
-const { title = 'Ako | Game Design Portfolio' } = Astro.props;
+const {
+	title = 'Ako | Game Design Portfolio',
+	description = 'Portfolio of Ako Pawlinska, a gameplay designer: game design case studies, prototypes and design process.',
+} = Astro.props;
+const pageUrl = new URL(Astro.url.pathname, Astro.site).href;
+const shareImage = new URL('/portfolio/og-image.png', Astro.site).href;
 ---
 
 <!doctype html>
@@ -21,6 +27,15 @@ const { title = 'Ako | Game Design Portfolio' } = Astro.props;
 		<meta name="generator" content={Astro.generator} />
 			<ClientRouter />
 		<title>{title}</title>
+			<meta name="description" content={description} />
+			<link rel="canonical" href={pageUrl} />
+			<meta property="og:type" content="website" />
+			<meta property="og:title" content={title} />
+			<meta property="og:description" content={description} />
+			<meta property="og:url" content={pageUrl} />
+			<meta property="og:image" content={shareImage} />
+			<meta property="og:image:alt" content="Ako Pawlinska, Gameplay Designer, with a pink blossom logo" />
+			<meta name="twitter:card" content="summary_large_image" />
 			<script is:inline>
 					document.documentElement.classList.add('js');
 					try {
@@ -30,16 +45,17 @@ const { title = 'Ako | Game Design Portfolio' } = Astro.props;
 				</script>
 	</head>
 	<body>
-		<header class="site-header">
+		<a class="skip-link" href="#main">Skip to content</a>
+			<header class="site-header">
 			<div class="header-inner">
 			<a href="/portfolio" class="brand">
 				<span class="brand-avatar" data-petals><span class="blossom" aria-hidden="true"></span></span>
 				<span class="brand-text">
-					<span class="brand-name">Ako</span>
+					<span class="brand-name">Ako Pawlinska</span>
 					<span class="brand-role"><span class="brand-role"> Gameplay Designer</span></span>
 				</span>
 			</a>
-			<nav>
+			<nav aria-label="Main">
 				<a href="/portfolio/#projects">Projects</a>
 			</nav>
 			<div class="header-links">
@@ -49,7 +65,7 @@ const { title = 'Ako | Game Design Portfolio' } = Astro.props;
 			</div>
 			</div>
 		</header>
-		<main>
+		<main id="main">
 			<slot />
 		</main>
 	</body>

@@ -51,7 +51,7 @@ const pills = [
 				</button>
 			</div>
 		) : (
-			<a class="feature-media" href={url} aria-label={`Open the ${project.data.title} case study`}>
+			<a class="feature-media" href={url} tabindex="-1" aria-hidden="true">
 				{project.data.coverImage
 					? <img src={project.data.coverImage} alt="" style={`object-position: ${project.data.coverImagePosition ?? 'center'};`} />
 					: <span class="placeholder">{project.data.title.charAt(0)}</span>}

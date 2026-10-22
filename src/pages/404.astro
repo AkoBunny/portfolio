@@ -1,0 +1,62 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="Page not found | Ako" description="That page doesn't exist or has moved.">
+	<section class="lost">
+		<div class="lost-blossom" aria-hidden="true" data-petals></div>
+		<h1>Page not found</h1>
+		<p>That page doesn't exist, or it has moved. All of my projects are on the home page.</p>
+		<a class="lost-btn" href="/portfolio/#projects">Back to projects</a>
+	</section>
+</Layout>
+
+<style>
+	.lost {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		padding: 4rem 0 2rem;
+		text-align: center;
+	}
+
+	.lost-blossom {
+		width: 96px;
+		height: 96px;
+		margin-bottom: 1.5rem;
+		background: var(--gradient);
+		-webkit-mask: var(--blossom-mask);
+		mask: var(--blossom-mask);
+		cursor: pointer;
+	}
+
+	.lost h1 {
+		margin: 0 0 0.75rem;
+		font-size: 2.6rem;
+		color: var(--accent-2);
+	}
+
+	.lost p {
+		max-width: 40ch;
+		margin: 0 0 1.75rem;
+		color: #bbb;
+	}
+
+	.lost-btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0.6rem 1.3rem;
+		border-radius: 999px;
+		background: var(--gradient-flow);
+		background-size: 200% 100%;
+		color: #14161a;
+		font-family: var(--font-heading);
+		font-weight: 600;
+		line-height: 1;
+		text-decoration: none;
+	}
+
+	.lost-btn:hover {
+		animation: flow 2s linear infinite;
+	}
+</style>

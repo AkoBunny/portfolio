@@ -16,6 +16,7 @@ const others = allProjects
 	.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 ---
 <Layout>
+	<h1 class="visually-hidden">Ako Pawlinska, Gameplay Designer: portfolio</h1>
 	<div id="projects">
 		{featured.map((project) => (
 			<div class="panel reveal">
@@ -26,7 +27,7 @@ const others = allProjects
 		{others.length > 0 && (
 			<section class="others">
 				<div class="divider" data-petals aria-hidden="true"></div>
-				<div class="panel carousel reveal" data-carousel>
+				<div class="panel carousel reveal" data-carousel role="region" aria-roledescription="carousel" aria-label="Other projects">
 					<div class="carousel-head">
 						<h2 class="carousel-title">Other projects</h2>
 						{others.length > 1 && (
