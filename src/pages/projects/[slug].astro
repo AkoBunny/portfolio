@@ -1357,7 +1357,7 @@ const infoItems = [
 	document
 		.querySelectorAll<HTMLImageElement>('.case-study img, .hero-image')
 		.forEach((el) => {
-			if (el.closest('.compare')) return;
+			if (el.closest('.compare, .video-poster')) return;
 			el.draggable = false;
 			el.tabIndex = 0;
 			el.setAttribute('role', 'button');
