@@ -195,3 +195,8 @@ html.has-progress .site-header::after {
 		scroll-behavior: auto;
 	}
 }
+
+/* The "Skip to content" link moves focus to <main>; no outline needed there */
+main:focus {
+	outline: none;
+}

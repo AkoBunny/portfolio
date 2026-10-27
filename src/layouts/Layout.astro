@@ -65,7 +65,7 @@ const shareImage = new URL('/portfolio/og-image.png', Astro.site).href;
 			</div>
 			</div>
 		</header>
-		<main id="main">
+		<main id="main" tabindex="-1">
 			<slot />
 		</main>
 	</body>
@@ -129,7 +129,7 @@ const shareImage = new URL('/portfolio/og-image.png', Astro.site).href;
 		position: sticky;
 		top: 0;
 		z-index: 20;
-		background: rgba(20, 22, 26, 0.82);
+		background: rgba(20, 22, 26, 0.95);
 		backdrop-filter: blur(12px);
 	}
 
