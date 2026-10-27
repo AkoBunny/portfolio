@@ -64,3 +64,29 @@
 	-webkit-mask: var(--petal-mask);
 	mask: var(--petal-mask);
 }
+
+/* ---- Sliders that handle their own dragging (see drag-slider.ts) ---- */
+.carousel-track,
+.gallery {
+	touch-action: pan-y;
+}
+
+.carousel-track.is-dragging,
+.gallery.is-dragging {
+	cursor: grabbing;
+	user-select: none;
+}
+
+/* ---- Looping gameplay clips: a <video> used in place of a GIF ---- */
+.media video {
+	display: block;
+	width: 100%;
+	max-width: 640px;
+	margin: 0 auto;
+	box-sizing: border-box;
+	border: 3px solid transparent;
+	border-radius: var(--radius);
+	background:
+		linear-gradient(#000, #000) padding-box,
+		var(--gradient) border-box;
+}

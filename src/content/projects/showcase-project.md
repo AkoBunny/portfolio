@@ -64,8 +64,8 @@ coverImage: "/portfolio/images/placeholders/gallery-1.png"
 ## Level overview
 
 <div class="split reverse">
-<div class="video-embed">
-<iframe src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" title="Placeholder walkthrough" allowfullscreen></iframe>
+<div class="video-embed" data-video="dQw4w9WgXcQ">
+<button type="button" class="video-poster" aria-label="Play video: Placeholder walkthrough"><img src="/portfolio/images/placeholders/gallery-2.png" alt=""><span class="video-play" aria-hidden="true"></span></button>
 </div>
 <div class="card">
 

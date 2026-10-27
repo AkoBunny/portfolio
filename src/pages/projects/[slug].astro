@@ -1077,7 +1077,6 @@ const infoItems = [
 	const menu = q<HTMLElement>('.lb-menu');
 
 	const MAX_SCALE = 6;
-	const STEP_PX = 120;
 
 	let items: HTMLImageElement[] = [];
 	let index = 0;
@@ -1263,30 +1262,30 @@ const infoItems = [
 		{ passive: false },
 	);
 
-	// ---- Dragging: pan when zoomed in, scrub through images when not ----
+// ---- Dragging: pan when zoomed in, swipe one image at a time when not ----
+	const SWIPE_DISTANCE = 0.2; // fraction of the stage width you must drag to change image
+	const SWIPE_FLICK = 0.4; // px per ms: a quick flick changes image even over a short distance
+
 	let dragging = false;
 	let moved = false;
-	let stepped = false;
 	let startedOnImage = false;
 	let startX = 0;
 	let startY = 0;
 	let startTx = 0;
 	let startTy = 0;
-	let lastX = 0;
-	let stepAccum = 0;
+	let samples: { x: number; t: number }[] = [];
 
 	stage.addEventListener('pointerdown', (e) => {
 		if (e.button !== 0) return;
 		dragging = true;
 		moved = false;
-		stepped = false;
 		startedOnImage = e.target === img;
 		startX = e.clientX;
 		startY = e.clientY;
-		lastX = e.clientX;
 		startTx = tx;
 		startTy = ty;
-		stepAccum = 0;
+		samples = [{ x: e.clientX, t: e.timeStamp }];
+		img.style.transition = 'none';
 		stage.setPointerCapture(e.pointerId);
 	});
 
@@ -1295,50 +1294,58 @@ const infoItems = [
 		const dx = e.clientX - startX;
 		const dy = e.clientY - startY;
 		if (!moved && Math.hypot(dx, dy) > 5) moved = true;
-		if (!moved) {
-			lastX = e.clientX;
-			return;
-		}
+		if (!moved) return;
 
 		if (scale > 1) {
+			// Zoomed in: drag pans the image
 			stage.classList.add('grabbing');
 			tx = startTx + dx;
 			ty = startTy + dy;
 			apply();
 		} else if (items.length > 1) {
-			stepAccum += e.clientX - lastX;
-			if (stepAccum <= -STEP_PX) {
-				show(index + 1);
-				stepAccum = 0;
-				stepped = true;
-			} else if (stepAccum >= STEP_PX) {
-				show(index - 1);
-				stepAccum = 0;
-				stepped = true;
-			}
+			// Not zoomed: the image follows the pointer sideways, with resistance at the ends
+			const atEdge = (dx > 0 && index === 0) || (dx < 0 && index === items.length - 1);
+			img.style.transform = `translate(${atEdge ? dx * 0.3 : dx}px, 0)`;
 		}
-		lastX = e.clientX;
+
+		// Remember the last ~100 ms of movement so we can measure speed on release
+		samples.push({ x: e.clientX, t: e.timeStamp });
+		while (samples.length > 1 && e.timeStamp - samples[0].t > 100) samples.shift();
 	});
 
 	const endDrag = (e: PointerEvent) => {
 		if (!dragging) return;
 		dragging = false;
 		stage.classList.remove('grabbing');
+
+		// Just a click or tap: clicking the dark background closes the viewer
 		if (!moved) {
 			if (!startedOnImage) close();
 			return;
 		}
-		if (scale === 1 && items.length > 1 && !stepped) {
+
+		if (scale === 1 && items.length > 1) {
 			const dx = e.clientX - startX;
-			if (dx <= -40) show(index + 1);
-			else if (dx >= 40) show(index - 1);
+			const first = samples[0];
+			const speed = (e.clientX - first.x) / Math.max(1, e.timeStamp - first.t);
+			const far = Math.abs(dx) > stage.clientWidth * SWIPE_DISTANCE;
+			const fast = Math.abs(speed) > SWIPE_FLICK;
+			const next = far || fast ? index + (dx < 0 ? 1 : -1) : index;
+
+			if (next !== index && next >= 0 && next < items.length) {
+				show(next);
+				img.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220, easing: 'ease-out' });
+			} else {
+				// Not far enough, or already at the end: spring back
+				img.style.transition = 'transform 0.25s ease';
+				apply();
+				window.setTimeout(() => (img.style.transition = ''), 280);
+			}
 		}
 	};
+
 	stage.addEventListener('pointerup', endDrag);
-	stage.addEventListener('pointercancel', () => {
-		dragging = false;
-		stage.classList.remove('grabbing');
-	});
+	stage.addEventListener('pointercancel', endDrag);
 
 	// Stop the browser from "picking up" the image when you drag it
 	root.addEventListener('dragstart', (e) => e.preventDefault());
