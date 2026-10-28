@@ -1262,7 +1262,7 @@ const infoItems = [
 		{ passive: false },
 	);
 
-// ---- Dragging: pan when zoomed in, swipe one image at a time when not ----
+// ---- Dragging, swiping and pinching ----
 	const SWIPE_DISTANCE = 0.2; // fraction of the stage width you must drag to change image
 	const SWIPE_FLICK = 0.4; // px per ms: a quick flick changes image even over a short distance
 
@@ -1275,8 +1275,62 @@ const infoItems = [
 	let startTy = 0;
 	let samples: { x: number; t: number }[] = [];
 
+	// Two-finger pinch: we keep track of every finger currently touching the stage
+	const pointers = new Map<number, { x: number; y: number }>();
+	let pinching = false;
+	let pinchDist = 0;
+	let pinchMidX = 0;
+	let pinchMidY = 0;
+
+	function pinchState() {
+		const [a, b] = Array.from(pointers.values());
+		return {
+			dist: Math.hypot(a.x - b.x, a.y - b.y),
+			midX: (a.x + b.x) / 2,
+			midY: (a.y + b.y) / 2,
+		};
+	}
+
+	// Touch screens send a "click" after your finger lifts, to whatever is under it by then.
+	// If a tap on the dark background closes the viewer, that click would land on the page
+	// behind and open another image. So after closing we ignore clicks for a moment.
+	let swallowClicksUntil = 0;
+	document.addEventListener(
+		'click',
+		(e) => {
+			if (performance.now() < swallowClicksUntil) {
+				e.preventDefault();
+				e.stopPropagation();
+			}
+		},
+		true,
+	);
+
 	stage.addEventListener('pointerdown', (e) => {
-		if (e.button !== 0) return;
+		if (e.pointerType === 'mouse' && e.button !== 0) return;
+
+		// A new first finger means a new gesture, so forget anything left over
+		if (e.isPrimary) {
+			pointers.clear();
+			pinching = false;
+		}
+		pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+		stage.setPointerCapture(e.pointerId);
+
+		if (pointers.size === 2) {
+			// A second finger landed: stop dragging and start pinching
+			dragging = false;
+			pinching = true;
+			img.style.transition = 'none';
+			apply();
+			const s = pinchState();
+			pinchDist = s.dist;
+			pinchMidX = s.midX;
+			pinchMidY = s.midY;
+			return;
+		}
+		if (pointers.size > 2) return;
+
 		dragging = true;
 		moved = false;
 		startedOnImage = e.target === img;
@@ -1286,10 +1340,28 @@ const infoItems = [
 		startTy = ty;
 		samples = [{ x: e.clientX, t: e.timeStamp }];
 		img.style.transition = 'none';
-		stage.setPointerCapture(e.pointerId);
 	});
 
 	stage.addEventListener('pointermove', (e) => {
+		if (pointers.has(e.pointerId)) pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+		// Two fingers: zoom by how much the gap between them changed, around their midpoint
+		if (pinching && pointers.size >= 2) {
+			const s = pinchState();
+			const rect = stage.getBoundingClientRect();
+			const cx = s.midX - (rect.left + rect.width / 2);
+			const cy = s.midY - (rect.top + rect.height / 2);
+			if (pinchDist > 0) zoomAt(cx, cy, s.dist / pinchDist);
+			// Both fingers moving together also pan the image
+			tx += s.midX - pinchMidX;
+			ty += s.midY - pinchMidY;
+			apply();
+			pinchDist = s.dist;
+			pinchMidX = s.midX;
+			pinchMidY = s.midY;
+			return;
+		}
+
 		if (!dragging) return;
 		const dx = e.clientX - startX;
 		const dy = e.clientY - startY;
@@ -1297,7 +1369,7 @@ const infoItems = [
 		if (!moved) return;
 
 		if (scale > 1) {
-			// Zoomed in: drag pans the image
+			// Zoomed in: dragging pans the image
 			stage.classList.add('grabbing');
 			tx = startTx + dx;
 			ty = startTy + dy;
@@ -1314,13 +1386,34 @@ const infoItems = [
 	});
 
 	const endDrag = (e: PointerEvent) => {
+		pointers.delete(e.pointerId);
+
+		if (pinching) {
+			// The pinch is over once fewer than two fingers remain. Lifting isn't a tap.
+			if (pointers.size < 2) {
+				pinching = false;
+				dragging = false;
+				img.style.transition = '';
+				if (scale <= 1) {
+					scale = 1;
+					tx = 0;
+					ty = 0;
+					apply();
+				}
+			}
+			return;
+		}
+
 		if (!dragging) return;
 		dragging = false;
 		stage.classList.remove('grabbing');
 
-		// Just a click or tap: clicking the dark background closes the viewer
+		// Just a click or tap: tapping the dark background closes the viewer
 		if (!moved) {
-			if (!startedOnImage) close();
+			if (!startedOnImage) {
+				swallowClicksUntil = performance.now() + 400;
+				close();
+			}
 			return;
 		}
 
