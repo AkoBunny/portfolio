@@ -320,5 +320,34 @@ document.addEventListener('astro:before-preparation', (event: Event) => {
 
 document.addEventListener('astro:page-load', () => window.clearTimeout(navTimer));
 
+// ---------- Email button ----------
+// Clicking Email still tries to open the visitor's mail app, as before. But a mailto: link
+// only works if the computer has a mail app set up for it, and on many the click just does
+// nothing. So the click also copies the address, and the button says "Copied!" for a moment.
+document.addEventListener('click', (event) => {
+	const link = (event.target as HTMLElement).closest<HTMLAnchorElement>('a[href^="mailto:"]');
+	if (!link) return;
+
+	const address = (link.getAttribute('href') ?? '').slice('mailto:'.length).split('?')[0];
+
+	// Remember the button's normal text, so it can be put back after the message
+	link.dataset.label ??= link.textContent ?? '';
+	const normal = link.dataset.label;
+
+	const flash = (text: string) => {
+		link.textContent = text;
+		window.setTimeout(() => {
+			link.textContent = normal;
+		}, 2500);
+	};
+
+	// If copying is blocked, show the address itself so it can be copied by hand
+	const copy = navigator.clipboard ? navigator.clipboard.writeText(address) : Promise.reject();
+	copy.then(
+		() => flash('Copied!'),
+		() => flash(address),
+	);
+});
+
 // Marks this file as a module, so its names don't clash with other scripts in the editor
 export {};

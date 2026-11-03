@@ -15,7 +15,6 @@
 	position: absolute;
 	left: 0;
 	top: 0;
-	will-change: transform, opacity;
 }
 
 .mote-petal {
@@ -102,7 +101,8 @@
 	height: 64px;
 	transform: translate(-50%, -50%);
 	border-radius: 50%;
-	background: var(--gradient);
+	background: var(--gradient-flow);
+  	background-size: 200% 100%;
 	transition: transform 0.2s ease;
 }
 
@@ -119,6 +119,7 @@
 
 .video-poster:hover .video-play {
 	transform: translate(-50%, -50%) scale(1.1);
+	animation: flow 2s linear infinite;
 }
 
 .video-poster:focus-visible {

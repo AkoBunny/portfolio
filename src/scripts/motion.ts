@@ -6,11 +6,12 @@
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 // ---------- Ambient petals and sparkles ----------
+// Each one is a tiny inline SVG drawing (not a CSS mask), which keeps the edges clean in every browser.
 // A small, permanent set of particles (a "pool"). Instead of creating and deleting
 // them, each one is recycled: when it falls off the bottom it jumps back to the top.
 
 type Mote = {
-	el: HTMLElement;
+	el: SVGSVGElement;
 	sparkle: boolean;
 	left: boolean; // which margin it lives in
 	baseX: number; // the centre line it sways around (px)
@@ -33,6 +34,11 @@ layer.setAttribute('aria-hidden', 'true');
 document.body.appendChild(layer);
 document.addEventListener('astro:after-swap', () => document.body.appendChild(layer));
 
+const SVG_NS = 'http://www.w3.org/2000/svg';
+const PETAL_PATH =
+	'M12 12C7.8 9.6 7.6 4.6 10.2 3.2C11 2.8 11.6 3.3 12 4C12.4 3.3 13 2.8 13.8 3.2C16.4 4.6 16.2 9.6 12 12Z';
+const SPARKLE_PATH = 'M12 2C12.8 8 16 11.2 22 12C16 12.8 12.8 16 12 22C11.2 16 8 12.8 2 12C8 11.2 11.2 8 12 2Z';
+
 const motes: Mote[] = [];
 let leftGutter: [number, number] = [0, 0]; // the empty margins, as [from, to] in px
 let rightGutter: [number, number] = [0, 0];
@@ -41,13 +47,32 @@ let ambientRunning = false;
 let ambientLast = 0;
 let ambientTime = 0;
 
+// Scroll reaction: the petals fall faster while you scroll down and slow down while you scroll up.
+let lastScrollY = window.scrollY;
+let scrollSpeed = 0; // smoothed scroll speed in px per second (down is positive)
+const SCROLL_PUSH = 0.12; // how strongly scrolling pushes the petals
+const SCROLL_EASE = 0.18; // seconds the push takes to catch up with your scrolling; bigger = lazier
+
 for (let i = 0; i < 16; i++) {
 	const sparkle = i % 4 === 3; // every fourth one is a sparkle
-	const el = document.createElement('span');
-	el.className = `mote ${sparkle ? 'mote-sparkle' : 'mote-petal'}`;
-	const size = sparkle ? 10 + Math.random() * 8 : 12 + Math.random() * 10;
-	el.style.width = `${size}px`;
-	el.style.height = `${size}px`;
+	const size = (sparkle ? 10 + Math.random() * 8 : 12 + Math.random() * 10) * 0.88;
+	const el = document.createElementNS(SVG_NS, 'svg');
+	el.setAttribute('class', 'mote');
+	el.setAttribute('viewBox', sparkle ? '0 0 24 24' : '7 2 10 11');
+	el.setAttribute('width', String(size));
+	el.setAttribute('height', String(size));
+
+	// Petals use the palette gradient (each drawing carries its own copy of it); sparkles use the accent colour
+	const shape = document.createElementNS(SVG_NS, 'path');
+	shape.setAttribute('d', sparkle ? SPARKLE_PATH : PETAL_PATH);
+	if (sparkle) {
+		shape.setAttribute('style', 'fill: var(--accent)');
+	} else {
+		const gradientId = `mote-gradient-${i}`;
+		el.innerHTML = `<defs><linearGradient id="${gradientId}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color: var(--accent-2)"/><stop offset="1" style="stop-color: var(--accent)"/></linearGradient></defs>`;
+		shape.setAttribute('style', `fill: url(#${gradientId})`);
+	}
+	el.appendChild(shape);
 	layer.appendChild(el);
 
 	motes.push({
@@ -99,6 +124,7 @@ function measure() {
 	if (ambientOn && !ambientRunning) {
 		ambientRunning = true;
 		ambientLast = performance.now();
+		lastScrollY = window.scrollY;
 		requestAnimationFrame(ambientTick);
 	}
 }
@@ -112,11 +138,25 @@ function ambientTick(now: number) {
 	const dt = Math.min((now - ambientLast) / 1000, 0.05);
 	ambientLast = now;
 	ambientTime += dt;
+
+	// How fast is the page scrolling right now? Distance moved this frame divided by the time.
+	// Jumps (back-to-top, a page change) are capped so they don't fling the petals.
+	const scrollNow = window.scrollY;
+	const frameTime = Math.max(dt, 0.001);
+	const rawScroll = Math.max(-3000, Math.min(3000, (scrollNow - lastScrollY) / frameTime));
+	lastScrollY = scrollNow;
+
+	// Ease towards that speed instead of copying it, so the petals build up speed and glide
+	// to a stop. "Close a fraction of the gap every frame" is also how a lagging camera works.
+	scrollSpeed += (rawScroll - scrollSpeed) * (1 - Math.exp(-frameTime / SCROLL_EASE));
 	const vh = window.innerHeight;
 
 	motes.forEach((m) => {
-		m.y += m.fall * dt;
-		m.rot += m.spin * dt;
+		// Scrolling down adds speed, scrolling up takes it away (down to a standstill, never
+		// backwards). Faster petals react more, which gives a little depth.
+		const speed = Math.max(0, m.fall + scrollSpeed * SCROLL_PUSH * (m.fall / 30));
+		m.y += speed * dt;
+		m.rot += m.spin * (speed / m.fall) * dt;
 
 		// Fell off the bottom: recycle it at the top, in a new spot
 		if (m.y > vh + 30) {
@@ -144,6 +184,7 @@ function ambientTick(now: number) {
 
 // Each page has its own <main>, so measure again whenever the page changes
 document.addEventListener('astro:page-load', () => {
+	lastScrollY = window.scrollY; // a page change resets the scroll position, which is not a scroll
 	main = document.querySelector<HTMLElement>('main');
 	measure();
 });
