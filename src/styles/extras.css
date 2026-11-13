@@ -448,7 +448,8 @@ html:not(.js) .variants-tabs {
 }
 
 /* The values table sits in a collapsible panel under the clips, lined up with them */
-.variants + .accordion {
+.variants + .accordion,
+.media + .accordion {
 	max-width: 800px;
 	margin: 1.5rem auto;
 }
@@ -460,7 +461,8 @@ html:not(.js) .variants-tabs {
 		font-size: 0.9rem;
 	}
 
-	.variants + .accordion > .card {
+	.variants + .accordion > .card,
+	.media + .accordion > .card {
 		padding: 1rem 0.6rem;
 	}
 
@@ -469,6 +471,7 @@ html:not(.js) .variants-tabs {
 		display: block;
 		overflow-x: auto;
 	}
+}
 
 /* Looping clips inside <figure class="media">: same width and gradient frame as the
    clip switcher and the before/after slider. (Only .media img was styled before.) */
@@ -483,16 +486,4 @@ html:not(.js) .variants-tabs {
 	border-radius: var(--radius);
 	background: var(--gradient) border-box;
 	object-fit: cover;
-}
-
-/* ---- Draft placeholder (temporary) ----
-   Marks text still to be written: <div class="card draft">. Remove the class once the text is real. */
-.card.draft {
-	border: 2px dashed var(--accent-2);
-	background: transparent;
-}
-.card.draft p {
-	font-style: italic;
-	opacity: 0.8;
-}
 }
