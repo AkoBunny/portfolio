@@ -6,12 +6,12 @@
 }
 
 /* ---- Palettes: soft pastel options ----
-   Sakura Peach is the default and lives in Layout.astro. Each block below only
+   Butter Pink is the default and lives in Layout.astro. Each block below only
    overrides the three palette variables. Everything else follows automatically. */
-html[data-theme="butter-pink"] {
-	--accent: #ffe98a;
-	--accent-2: #ff9fc6;
-	--glow: rgba(255, 159, 198, 0.12);
+html[data-theme="sakura-peach"] {
+	--accent: #ffa987;
+	--accent-2: #ffb7c5;
+	--glow: rgba(255, 183, 197, 0.12);
 }
 
 html[data-theme="lilac-mint"] {
@@ -469,4 +469,19 @@ html:not(.js) .variants-tabs {
 		display: block;
 		overflow-x: auto;
 	}
+
+/* Looping clips inside <figure class="media">: same width and gradient frame as the
+   clip switcher and the before/after slider. (Only .media img was styled before.) */
+.media video {
+	display: block;
+	box-sizing: border-box;
+	width: 100%;
+	max-width: 800px;
+	aspect-ratio: 16 / 9;
+	margin: 0 auto;
+	border: 3px solid transparent;
+	border-radius: var(--radius);
+	background: var(--gradient) border-box;
+	object-fit: cover;
+}
 }

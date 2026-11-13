@@ -55,3 +55,20 @@ coverImage: "/portfolio/images/final-altitude/cover.jpg"
 
 </div>
 </details>
+
+<figure class="media">
+<video src="/portfolio/videos/final-altitude/decel-comparison.mp4" autoplay loop muted playsinline aria-label="Four deceleration values side by side: 200 stops in 2.25 m, 120 (chosen) in 3.75 m, 60 in 7.5 m, 20 in 22.5 m"></video>
+<figcaption>All four values at once, from the same top speed. 120 is the one I kept.</figcaption>
+</figure>
+
+<div class="compare" tabindex="0" role="slider" aria-label="Before and after comparison: floor without and with a grid" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
+<img class="compare-before" src="/portfolio/images/final-altitude/grid-before.jpg" alt="Before: a flat grey floor with no markings, so speed and distance are hard to judge">
+<img class="compare-after" src="/portfolio/images/final-altitude/grid-after.jpg" alt="After: the same view with a grid floor that gives a clear reference for speed and distance">
+<span class="compare-handle"></span>
+</div>
+
+<div class="card">
+
+YOUR PARAGRAPH HERE.
+
+</div>
