@@ -1,12 +1,13 @@
 ---
-title: "Inventory UI Redesign"
-hook: "Reworking an inventory screen so item information is readable at a glance."
-category: ["UI Design"]
+title: "Placeholder 3"
+coverImage: ""
+hook: "The quick brown fox jumps over the lazy dog."
+category: ["Placeholder"]
 status: "In Progress"
 type: "Coursework"
 featured: false
 date: 2026-06-20
-tools: ["Unity"]
+tools: ["N/A"]
 ---
 
-This case study will test a multi-image gallery.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.

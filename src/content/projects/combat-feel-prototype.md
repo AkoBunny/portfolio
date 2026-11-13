@@ -1,13 +1,13 @@
 ---
-title: "Combat Feel Prototype"
+title: "Placeholder 2"
 coverImage: ""
-hook: "Tuning hit timing and feedback so melee combat feels responsive."
-category: ["Gameplay Design"]
+hook: "The quick brown fox jumps over the lazy dog."
+category: ["Placeholder"]
 status: "Finished"
 type: "Personal"
 featured: false
 date: 2026-08-15
-tools: ["Unity"]
+tools: ["N/A"]
 ---
 
-This case study will test an embedded GIF.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.

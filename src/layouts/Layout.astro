@@ -38,17 +38,6 @@ const shareImage = new URL('/portfolio/og-image.png', Astro.site).href;
 			<meta name="twitter:card" content="summary_large_image" />
 			<script is:inline>
 					document.documentElement.classList.add('js');
-					try {
-						const palette = localStorage.getItem('palette');
-						if (palette) document.documentElement.dataset.theme = palette;
-						if (palette === 'custom') {
-							const c = JSON.parse(localStorage.getItem('custom-palette'));
-							const s = document.documentElement.style;
-							s.setProperty('--accent', c.accent);
-							s.setProperty('--accent-2', c.accent2);
-							s.setProperty('--glow', c.glow);
-						}
-					} catch (e) {}
 				</script>
 	</head>
 	<body>

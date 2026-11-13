@@ -1,12 +1,13 @@
 ---
-title: "Level Blockout Study"
-hook: "Iterating on a level layout through blockout passes and playtest feedback."
-category: ["Level Design"]
+title: "Placeholder 4"
+coverImage: ""
+hook: "The quick brown fox jumps over the lazy dog."
+category: ["Placeholder"]
 status: "In Progress"
 type: "Coursework"
 featured: false
 date: 2026-04-02
-tools: ["Unreal Engine"]
+tools: ["N/A"]
 ---
 
-This case study will test a before/after image slider.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
