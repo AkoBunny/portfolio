@@ -484,4 +484,15 @@ html:not(.js) .variants-tabs {
 	background: var(--gradient) border-box;
 	object-fit: cover;
 }
+
+/* ---- Draft placeholder (temporary) ----
+   Marks text still to be written: <div class="card draft">. Remove the class once the text is real. */
+.card.draft {
+	border: 2px dashed var(--accent-2);
+	background: transparent;
+}
+.card.draft p {
+	font-style: italic;
+	opacity: 0.8;
+}
 }
