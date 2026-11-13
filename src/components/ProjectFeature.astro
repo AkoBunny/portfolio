@@ -7,7 +7,6 @@ interface Props {
 
 const { project } = Astro.props;
 const url = `/portfolio/projects/${project.id}`;
-const dateLabel = project.data.date.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
 
 // Same icons as the case-study page. Later we can move these to one shared place.
 const icons = {
@@ -24,13 +23,11 @@ const icons = {
 
 // The list of facts shown beside the media. Reorder or delete lines to change it.
 const infoItems = [
-	{ icon: icons.genre, label: 'Genre', value: project.data.genre },
-	{ icon: icons.status, label: 'Status', value: project.data.status },
-	{ icon: icons.date, label: 'Date', value: dateLabel },
-	{ icon: icons.duration, label: 'Duration', value: project.data.duration },
 	{ icon: icons.role, label: 'Role', value: project.data.role },
 	{ icon: icons.engine, label: 'Engine', value: project.data.engine },
+	{ icon: icons.duration, label: 'Duration', value: project.data.duration },
 	{ icon: icons.tools, label: 'Tools', value: project.data.tools.join(', ') },
+	{ icon: icons.genre, label: 'Genre', value: project.data.genre },
 ].filter((item) => item.value);
 
 const pills = [

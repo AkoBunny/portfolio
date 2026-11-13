@@ -333,3 +333,52 @@ html:not(.js) .variants-tabs {
 	background: var(--gradient) border-box;
 	object-fit: cover;
 }
+
+/* ---- Looping clips: tap or click to watch fullscreen ---- */
+.media-frame {
+	position: relative;
+	max-width: 800px;
+	margin: 0 auto;
+}
+
+.media-frame video {
+	cursor: zoom-in;
+}
+
+.media-expand {
+	position: absolute;
+	top: 0.6rem;
+	right: 0.6rem;
+	display: grid;
+	place-items: center;
+	width: 36px;
+	height: 36px;
+	padding: 0;
+	border: 0;
+	border-radius: 50%;
+	background: rgba(20, 22, 26, 0.75);
+	color: var(--accent);
+	cursor: pointer;
+}
+
+.media-expand:hover {
+	background: var(--gradient-flow);
+	background-size: 200% 100%;
+	color: #14161a;
+}
+
+.media-expand:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 2px;
+}
+
+/* In fullscreen the video fills the screen without its frame */
+.media-frame video:fullscreen {
+	max-width: none;
+	aspect-ratio: auto;
+	border: 0;
+	border-radius: 0;
+	background: #000;
+	object-fit: contain;
+	cursor: zoom-out;
+}

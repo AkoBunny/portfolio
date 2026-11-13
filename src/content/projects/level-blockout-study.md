@@ -1,13 +1,21 @@
 ---
 title: "Placeholder 4"
 coverImage: ""
-hook: "The quick brown fox jumps over the lazy dog."
+hook: "A placeholder card for previewing the Other projects carousel."
 category: ["Placeholder"]
 status: "In Progress"
 type: "Coursework"
 featured: false
 date: 2026-04-02
+duration: "N/A"
+engine: "N/A"
+role: "N/A"
+genre: "N/A"
 tools: ["N/A"]
 ---
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+<div class="card">
+
+**Placeholder page:** a short case study with a single text card.
+
+</div>

@@ -1,6 +1,6 @@
 ---
 title: "Placeholder Project"
-hook: "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+hook: "A layout preview: every content block a case study page can use, each describing itself."
 category: ["Placeholder"]
 status: "Finished"
 type: "Personal"
@@ -19,38 +19,38 @@ playableLink: "https://example.com"
 coverImage: "/portfolio/images/placeholders/gallery-1.png"
 ---
 
-## Lorem ipsum
+## Split layout
 
 <div class="split">
 <img src="/portfolio/images/placeholders/gallery-2.png" alt="Placeholder image">
 <div class="card">
 
-**Lorem:** Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+**Split layout:** an image or clip beside a text card. Good for one point and the visual that proves it.
 
-**Ipsum:** Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+**Bold labels:** a bold word at the start of a paragraph turns the accent colour, like the Result, Problem and Solution labels.
 
-**Dolor sit amet:**
+**Bullet lists:**
 
-- The quick brown fox jumps over the lazy dog.
-- Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
-- Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+- Each bullet gets a petal marker.
+- Keep bullets to one line where possible.
+- Bold words inside a bullet stay white.
 
 </div>
 </div>
 
-## Dolor sit amet
+## Image strip
 
 <div class="strip">
-<figure><img src="/portfolio/images/placeholders/strip-1.png" alt="Placeholder image 1"><figcaption>Lorem 1</figcaption></figure>
-<figure><img src="/portfolio/images/placeholders/strip-2.png" alt="Placeholder image 2"><figcaption>Lorem 2</figcaption></figure>
-<figure><img src="/portfolio/images/placeholders/strip-3.png" alt="Placeholder image 3"><figcaption>Lorem 3</figcaption></figure>
-<figure><img src="/portfolio/images/placeholders/strip-4.png" alt="Placeholder image 4"><figcaption>Lorem 4</figcaption></figure>
-<figure><img src="/portfolio/images/placeholders/strip-5.png" alt="Placeholder image 5"><figcaption>Lorem 5</figcaption></figure>
+<figure><img src="/portfolio/images/placeholders/strip-1.png" alt="Placeholder image 1"><figcaption>Step 1</figcaption></figure>
+<figure><img src="/portfolio/images/placeholders/strip-2.png" alt="Placeholder image 2"><figcaption>Step 2</figcaption></figure>
+<figure><img src="/portfolio/images/placeholders/strip-3.png" alt="Placeholder image 3"><figcaption>Step 3</figcaption></figure>
+<figure><img src="/portfolio/images/placeholders/strip-4.png" alt="Placeholder image 4"><figcaption>Step 4</figcaption></figure>
+<figure><img src="/portfolio/images/placeholders/strip-5.png" alt="Placeholder image 5"><figcaption>Step 5</figcaption></figure>
 </div>
 
-*The quick brown fox jumps over the lazy dog.*
+*Image strip: a row of small captioned images for showing stages or iterations in order. Tap one to open the viewer.*
 
-## Consectetur
+## Before and after slider
 
 <div class="compare" tabindex="0" role="slider" aria-label="Before and after comparison" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
 <img class="compare-before" src="/portfolio/images/placeholders/before.png" alt="Placeholder before image">
@@ -58,64 +58,56 @@ coverImage: "/portfolio/images/placeholders/gallery-1.png"
 <span class="compare-handle"></span>
 </div>
 
-*The quick brown fox jumps over the lazy dog.*
+*Before and after slider: two matching images, dragged across (or moved with the arrow keys) to compare a change.*
 
-## Adipiscing elit
+## Split layout, reversed
 
 <div class="split reverse">
 <img src="/portfolio/images/placeholders/gallery-3.png" alt="Placeholder image">
 <div class="card">
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+Split layout, reversed: the same block with the text on the left and the visual on the right. Alternating the two keeps a long page from feeling repetitive.
 
-- **Lorem** The quick brown fox jumps over the lazy dog.
-- **Ipsum** Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
-- **Dolor** Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+- **Visual:** an image, a looping clip or a video embed.
+- **Text:** a short card, about three lines per point.
 
 </div>
 </div>
 
-## Sed do eiusmod
+## Text card
 
 <div class="card">
 
-**Lorem ipsum:** Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+**Text card:** a block of text on its own, for points that don't need a visual.
 
-- **Option A:** The quick brown fox jumps over the lazy dog.
-- **Option B:** Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
+- **Option A:** a list can compare two approaches.
+- **Option B:** with one bold label each.
 
-**Dolor sit amet:** Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-
-- The quick brown fox jumps over the lazy dog.
-- Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
-- Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+**Second paragraph:** cards can hold several labelled paragraphs.
 
 </div>
 
-## Tempor incididunt
+## Collapsible panels
 
 <details class="accordion" open>
-<summary>Lorem ipsum</summary>
+<summary>Collapsible panel (open)</summary>
 <div class="card">
 
-**Lorem:** Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-
-- **Ipsum:** The quick brown fox jumps over the lazy dog.
-- **Dolor:** Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+**Collapsible panel:** extra detail the reader can open or close, like a table of tested values. This one starts open.
 
 </div>
 </details>
 
 <details class="accordion">
-<summary>Dolor sit amet</summary>
+<summary>Collapsible panel (closed)</summary>
 <div class="card">
 
-**Lorem:** Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
+This one starts closed.
 
 </div>
 </details>
 
-## Magna aliqua
+## Gallery
 
 <div class="gallery">
 <img src="/portfolio/images/placeholders/gallery-1.png" alt="Placeholder image 1">
@@ -124,25 +116,11 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
 <img src="/portfolio/images/placeholders/gallery-4.png" alt="Placeholder image 4">
 </div>
 
-*The quick brown fox jumps over the lazy dog.*
+*Gallery: a swipeable row of large images, browsed with the arrows, dots or a swipe.*
 
-## Ut enim
+## GIF
 
 <figure class="media">
 <img src="/portfolio/images/placeholders/demo.gif" alt="Placeholder animated GIF">
-<figcaption>The quick brown fox jumps over the lazy dog.</figcaption>
+<figcaption>GIF: a short looping animation with a caption underneath.</figcaption>
 </figure>
-
-## Minim veniam
-
-<div class="card">
-
-**Lorem ipsum:** Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-
-**Dolor sit amet:** Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-
-- The quick brown fox jumps over the lazy dog.
-- Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
-- Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-
-</div>
