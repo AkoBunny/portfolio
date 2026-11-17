@@ -10,6 +10,7 @@ const projects = defineCollection({
 		type: z.enum(['Coursework', 'Personal']),
 		featured: z.boolean(),
 		date: z.date(),
+		showDate: z.boolean().default(true),
 		tools: z.array(z.string()).default([]),
 		engine: z.string().optional(),
 		duration: z.string().optional(),

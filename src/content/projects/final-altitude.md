@@ -5,7 +5,7 @@ category: ["Gameplay Design"]
 status: "In Progress"
 type: "Coursework"
 featured: true
-date: 2026-09-22
+date: 2026-12-15
 duration: "12 weeks"
 engine: "Unity"
 tools: ["Visual Studio", "Git"]

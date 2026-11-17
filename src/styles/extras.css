@@ -337,11 +337,15 @@ html:not(.js) .variants-tabs {
 /* ---- Looping clips: tap or click to watch fullscreen ---- */
 .media-frame {
 	position: relative;
+	width: 100%;
 	max-width: 800px;
 	margin: 0 auto;
 }
 
-.media-frame video {
+/* Extra ".media" makes this beat the older 640px cap in decor.css, whatever order the files load in */
+.media .media-frame video {
+	width: 100%;
+	max-width: 800px;
 	cursor: zoom-in;
 }
 

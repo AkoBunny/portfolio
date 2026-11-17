@@ -5,7 +5,7 @@ category: ["Placeholder"]
 status: "Finished"
 type: "Personal"
 featured: true
-date: 2026-08-20
+date: 2026-10-27
 duration: "N/A"
 engine: "N/A"
 tools: ["N/A"]

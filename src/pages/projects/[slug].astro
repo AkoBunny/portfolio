@@ -32,11 +32,11 @@ const icons = {
 
 const infoItems = [
 	{ icon: icons.genre, label: 'Genre', value: project.data.genre },
-	{ icon: icons.date, label: 'Date', value: dateLabel },
-	{ icon: icons.duration, label: 'Duration', value: project.data.duration },
-	{ icon: icons.team, label: 'Team size', value: project.data.teamSize },
 	{ icon: icons.role, label: 'Role', value: project.data.role },
+	{ icon: icons.team, label: 'Team size', value: project.data.teamSize },
 	{ icon: icons.studio, label: 'Studio', value: project.data.studio },
+	{ icon: icons.duration, label: 'Duration', value: project.data.duration },
+	{ icon: icons.date, label: 'Date', value: project.data.showDate ? dateLabel : undefined },
 	{ icon: icons.engine, label: 'Engine', value: project.data.engine },
 	{ icon: icons.tools, label: 'Tools', value: project.data.tools.join(', ') },
 	{ icon: icons.assets, label: 'Assets used', value: project.data.assetsUsed?.join(', ') },
@@ -1018,13 +1018,25 @@ const infoItems = [
 		background: #2a2d33;
 	}
 
-	@media (max-width: 700px) {
+	/* Phones and short landscape screens: the picture uses the whole screen and the
+	   buttons and caption float on top, so nothing eats into the image or the zoom area */
+	@media (max-width: 700px), (max-height: 500px) {
 		.lb-stage {
-			inset: 4rem 0.5rem 3.5rem;
+			inset: 0;
 		}
 
 		.lb-caption {
+			bottom: 0.75rem;
 			padding: 0 1rem;
+			text-shadow: 0 1px 3px #000, 0 0 8px #000;
+		}
+
+		.lb-prev {
+			left: 0.5rem;
+		}
+
+		.lb-next {
+			right: 0.5rem;
 		}
 	}
 </style>
@@ -1478,8 +1490,6 @@ const infoItems = [
 	// ---- Tap a looping clip to watch it fullscreen (set up again after every page change) ----
 	// Each <video> in a .media figure gets wrapped in a frame with a small expand button.
 	// Fullscreen uses the browser's own video fullscreen, like YouTube's button does.
-	const FULLSCREEN_ICON = ICONS.fullscreen;
-
 	function toggleVideoFullscreen(video: HTMLVideoElement) {
 		const v = video as HTMLVideoElement & { webkitEnterFullscreen?: () => void };
 		if (document.fullscreenElement) {
@@ -1498,7 +1508,7 @@ const infoItems = [
 			const frame = document.createElement('div');
 			frame.className = 'media-frame';
 			video.before(frame);
-			frame.append(video); // moving a video pauses it, so start it again below
+			frame.append(video); // moving a video pauses it, so start it again
 			if (video.autoplay) video.play().catch(() => {});
 
 			const button = document.createElement('button');
@@ -1506,7 +1516,7 @@ const infoItems = [
 			button.className = 'media-expand';
 			button.setAttribute('aria-label', 'Watch fullscreen');
 			button.title = 'Watch fullscreen';
-			button.innerHTML = FULLSCREEN_ICON;
+			button.innerHTML = ICONS.fullscreen;
 			frame.append(button);
 
 			button.addEventListener('click', () => toggleVideoFullscreen(video));

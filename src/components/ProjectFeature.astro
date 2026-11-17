@@ -23,11 +23,11 @@ const icons = {
 
 // The list of facts shown beside the media. Reorder or delete lines to change it.
 const infoItems = [
-	{ icon: icons.role, label: 'Role', value: project.data.role },
-	{ icon: icons.engine, label: 'Engine', value: project.data.engine },
-	{ icon: icons.duration, label: 'Duration', value: project.data.duration },
-	{ icon: icons.tools, label: 'Tools', value: project.data.tools.join(', ') },
 	{ icon: icons.genre, label: 'Genre', value: project.data.genre },
+	{ icon: icons.role, label: 'Role', value: project.data.role },
+	{ icon: icons.duration, label: 'Duration', value: project.data.duration },
+	{ icon: icons.engine, label: 'Engine', value: project.data.engine },
+	{ icon: icons.tools, label: 'Tools', value: project.data.tools.join(', ') },
 ].filter((item) => item.value);
 
 const pills = [
