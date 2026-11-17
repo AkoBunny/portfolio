@@ -1490,17 +1490,31 @@ const infoItems = [
 	// ---- Tap a looping clip to watch it fullscreen (set up again after every page change) ----
 	// Each <video> in a .media figure gets wrapped in a frame with a small expand button.
 	// Fullscreen uses the browser's own video fullscreen, like YouTube's button does.
+	// Fullscreen the frame (not the <video>), because Chrome on Android has its own rules for
+	// fullscreen videos that close them when the phone rotates. While open, try to lock the
+	// screen to landscape like YouTube does; if the browser refuses, it just works in portrait.
 	function toggleVideoFullscreen(video: HTMLVideoElement) {
+		const frame = video.parentElement as HTMLElement;
 		const v = video as HTMLVideoElement & { webkitEnterFullscreen?: () => void };
+		const orientation = screen.orientation as ScreenOrientation & {
+			lock?: (o: string) => Promise<void>;
+		};
 		if (document.fullscreenElement) {
 			document.exitFullscreen().catch(() => {});
-		} else if (v.requestFullscreen) {
-			v.requestFullscreen().catch(() => {});
+		} else if (frame.requestFullscreen) {
+			frame
+				.requestFullscreen()
+				.then(() => orientation?.lock?.('landscape'))
+				.catch(() => {});
 		} else {
 			v.webkitEnterFullscreen?.(); // iPhone Safari only allows fullscreen on the video itself
 		}
 		v.play().catch(() => {});
 	}
+
+	document.addEventListener('fullscreenchange', () => {
+		if (!document.fullscreenElement) screen.orientation?.unlock?.();
+	});
 
 	const initVideos = () =>
 		document.querySelectorAll<HTMLVideoElement>('.case-study .media video').forEach((video) => {
