@@ -1080,7 +1080,7 @@ const infoItems = [
 			<button type="button" class="lb-btn" data-act="close" aria-label="Close" title="Close">${ICONS.close}</button>
 		</div>
 		<button type="button" class="lb-nav lb-prev" aria-label="Previous image">${ICONS.prev}</button>
-		<div class="lb-stage"><img class="lb-img" alt="" draggable="false"></div>
+		<div class="lb-stage"><img class="lb-img" alt="" draggable="false"><video class="lb-img lb-video" muted loop playsinline hidden></video></div>
 		<button type="button" class="lb-nav lb-next" aria-label="Next image">${ICONS.next}</button>
 		<div class="lb-caption"></div>
 	`;
@@ -1092,7 +1092,10 @@ const infoItems = [
 	});
 	const q = <T extends HTMLElement>(selector: string) => root.querySelector(selector) as T;
 	const stage = q<HTMLElement>('.lb-stage');
-	const img = q<HTMLImageElement>('.lb-img');
+	const img = q<HTMLImageElement>('img.lb-img');
+	const vid = q<HTMLVideoElement>('video.lb-video');
+	// The viewer shows either the image or the video; "media" is whichever is on screen
+	let media: HTMLImageElement | HTMLVideoElement = img;
 	const caption = q<HTMLElement>('.lb-caption');
 	const prevBtn = q<HTMLButtonElement>('.lb-prev');
 	const nextBtn = q<HTMLButtonElement>('.lb-next');
@@ -1101,7 +1104,7 @@ const infoItems = [
 
 	const MAX_SCALE = 6;
 
-	let items: HTMLImageElement[] = [];
+	let items: (HTMLImageElement | HTMLVideoElement)[] = [];
 	let index = 0;
 	let scale = 1;
 	let tx = 0;
@@ -1109,16 +1112,17 @@ const infoItems = [
 	let baseW = 0;
 	let baseH = 0;
 	let lastTrigger: HTMLElement | null = null;
+	let savedScroll = 0;
 
 	// Size the image so it fits the stage (scale 1 = "fit to screen")
 	function fitImage() {
-		const nw = img.naturalWidth || 1;
-		const nh = img.naturalHeight || 1;
+		const nw = (media === vid ? vid.videoWidth : img.naturalWidth) || 1;
+		const nh = (media === vid ? vid.videoHeight : img.naturalHeight) || 1;
 		const f = Math.min(stage.clientWidth / nw, stage.clientHeight / nh);
 		baseW = nw * f;
 		baseH = nh * f;
-		img.style.width = `${baseW}px`;
-		img.style.height = `${baseH}px`;
+		media.style.width = `${baseW}px`;
+		media.style.height = `${baseH}px`;
 	}
 
 	// Apply pan and zoom, keeping the image from being dragged out of view
@@ -1127,7 +1131,7 @@ const infoItems = [
 		const maxY = Math.max(0, (baseH * scale - stage.clientHeight) / 2);
 		tx = Math.min(maxX, Math.max(-maxX, tx));
 		ty = Math.min(maxY, Math.max(-maxY, ty));
-		img.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+		media.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
 		stage.classList.toggle('zoomed', scale > 1);
 	}
 
@@ -1149,13 +1153,29 @@ const infoItems = [
 	function show(i: number) {
 		index = Math.min(items.length - 1, Math.max(0, i));
 		const source = items[index];
-		const label = source.closest('figure')?.querySelector('figcaption')?.textContent?.trim() || source.alt;
+		const alt = source instanceof HTMLImageElement ? source.alt : source.getAttribute('aria-label') || '';
+		const label = source.closest('figure')?.querySelector('figcaption')?.textContent?.trim() || alt;
 		scale = 1;
 		tx = 0;
 		ty = 0;
-		img.alt = source.alt;
-		img.src = source.dataset.full || source.currentSrc || source.src;
-		if (img.complete && img.naturalWidth) fitImage();
+		if (source instanceof HTMLVideoElement) {
+			media = vid;
+			img.hidden = true;
+			vid.hidden = false;
+			vid.setAttribute('aria-label', alt);
+			if (vid.src !== source.currentSrc) vid.src = source.currentSrc || source.src;
+			vid.currentTime = source.currentTime; // carry on from where the page's clip was
+			vid.play().catch(() => {});
+			if (vid.videoWidth) fitImage();
+		} else {
+			media = img;
+			vid.pause();
+			vid.hidden = true;
+			img.hidden = false;
+			img.alt = alt;
+			img.src = source.dataset.full || source.currentSrc || source.src;
+			if (img.complete && img.naturalWidth) fitImage();
+		}
 		apply();
 		caption.textContent = items.length > 1 ? `${index + 1} / ${items.length}${label ? ' - ' + label : ''}` : label;
 		prevBtn.hidden = items.length < 2;
@@ -1164,9 +1184,10 @@ const infoItems = [
 		nextBtn.disabled = index === items.length - 1;
 	}
 
-	function open(trigger: HTMLImageElement) {
+	function open(trigger: HTMLImageElement | HTMLVideoElement) {
 		lastTrigger = trigger;
-		const group = trigger.closest('.strip, .gallery');
+		savedScroll = window.scrollY;
+		const group = trigger instanceof HTMLImageElement ? trigger.closest('.strip, .gallery') : null;
 		items = group ? Array.from(group.querySelectorAll<HTMLImageElement>('img')) : [trigger];
 		root.classList.add('open');
 		document.documentElement.style.overflow = 'hidden';
@@ -1178,14 +1199,17 @@ const infoItems = [
 		if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
 		menu.hidden = true;
 		root.classList.remove('open');
+		vid.pause();
 		document.documentElement.style.overflow = '';
-		lastTrigger?.focus();
+		lastTrigger?.focus({ preventScroll: true });
+		// Put the page back exactly where it was, so closing the viewer never jumps
+		window.scrollTo({ top: savedScroll, behavior: 'instant' });
 	}
 
 	function updateShareLinks() {
 		const page = encodeURIComponent(location.href);
-		const src = new URL(img.src, location.href).href;
-		const text = encodeURIComponent(items[index]?.alt || document.title);
+		const src = new URL(media.src, location.href).href;
+		const text = encodeURIComponent(img.alt || document.title);
 		const setLink = (name: string, href: string) => {
 			(menu.querySelector(`[data-share="${name}"]`) as HTMLAnchorElement).href = href;
 		};
@@ -1230,6 +1254,10 @@ const infoItems = [
 	});
 
 	img.addEventListener('load', () => {
+		fitImage();
+		apply();
+	});
+	vid.addEventListener('loadedmetadata', () => {
 		fitImage();
 		apply();
 	});
@@ -1344,7 +1372,7 @@ const infoItems = [
 			// A second finger landed: stop dragging and start pinching
 			dragging = false;
 			pinching = true;
-			img.style.transition = 'none';
+			media.style.transition = 'none';
 			apply();
 			const s = pinchState();
 			pinchDist = s.dist;
@@ -1362,7 +1390,7 @@ const infoItems = [
 		startTx = tx;
 		startTy = ty;
 		samples = [{ x: e.clientX, t: e.timeStamp }];
-		img.style.transition = 'none';
+		media.style.transition = 'none';
 	});
 
 	stage.addEventListener('pointermove', (e) => {
@@ -1400,7 +1428,7 @@ const infoItems = [
 		} else if (items.length > 1) {
 			// Not zoomed: the image follows the pointer sideways, with resistance at the ends
 			const atEdge = (dx > 0 && index === 0) || (dx < 0 && index === items.length - 1);
-			img.style.transform = `translate(${atEdge ? dx * 0.3 : dx}px, 0)`;
+			media.style.transform = `translate(${atEdge ? dx * 0.3 : dx}px, 0)`;
 		}
 
 		// Remember the last ~100 ms of movement so we can measure speed on release
@@ -1416,7 +1444,7 @@ const infoItems = [
 			if (pointers.size < 2) {
 				pinching = false;
 				dragging = false;
-				img.style.transition = '';
+				media.style.transition = '';
 				if (scale <= 1) {
 					scale = 1;
 					tx = 0;
@@ -1450,12 +1478,12 @@ const infoItems = [
 
 			if (next !== index && next >= 0 && next < items.length) {
 				show(next);
-				img.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220, easing: 'ease-out' });
+				media.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220, easing: 'ease-out' });
 			} else {
 				// Not far enough, or already at the end: spring back
-				img.style.transition = 'transform 0.25s ease';
+				media.style.transition = 'transform 0.25s ease';
 				apply();
-				window.setTimeout(() => (img.style.transition = ''), 280);
+				window.setTimeout(() => (media.style.transition = ''), 280);
 			}
 		}
 	};
@@ -1487,35 +1515,8 @@ const infoItems = [
 			});
 		});
 
-	// ---- Tap a looping clip to watch it fullscreen (set up again after every page change) ----
+	// ---- Looping clips open in the same viewer as images (set up again after every page change) ----
 	// Each <video> in a .media figure gets wrapped in a frame with a small expand button.
-	// Fullscreen uses the browser's own video fullscreen, like YouTube's button does.
-	// Fullscreen the frame (not the <video>), because Chrome on Android has its own rules for
-	// fullscreen videos that close them when the phone rotates. While open, try to lock the
-	// screen to landscape like YouTube does; if the browser refuses, it just works in portrait.
-	function toggleVideoFullscreen(video: HTMLVideoElement) {
-		const frame = video.parentElement as HTMLElement;
-		const v = video as HTMLVideoElement & { webkitEnterFullscreen?: () => void };
-		const orientation = screen.orientation as ScreenOrientation & {
-			lock?: (o: string) => Promise<void>;
-		};
-		if (document.fullscreenElement) {
-			document.exitFullscreen().catch(() => {});
-		} else if (frame.requestFullscreen) {
-			frame
-				.requestFullscreen()
-				.then(() => orientation?.lock?.('landscape'))
-				.catch(() => {});
-		} else {
-			v.webkitEnterFullscreen?.(); // iPhone Safari only allows fullscreen on the video itself
-		}
-		v.play().catch(() => {});
-	}
-
-	document.addEventListener('fullscreenchange', () => {
-		if (!document.fullscreenElement) screen.orientation?.unlock?.();
-	});
-
 	const initVideos = () =>
 		document.querySelectorAll<HTMLVideoElement>('.case-study .media video').forEach((video) => {
 			if (video.parentElement?.classList.contains('media-frame')) return;
@@ -1528,13 +1529,13 @@ const infoItems = [
 			const button = document.createElement('button');
 			button.type = 'button';
 			button.className = 'media-expand';
-			button.setAttribute('aria-label', 'Watch fullscreen');
-			button.title = 'Watch fullscreen';
+			button.setAttribute('aria-label', 'Expand video');
+			button.title = 'Expand video';
 			button.innerHTML = ICONS.fullscreen;
 			frame.append(button);
 
-			button.addEventListener('click', () => toggleVideoFullscreen(video));
-			video.addEventListener('click', () => toggleVideoFullscreen(video));
+			button.addEventListener('click', () => open(video));
+			video.addEventListener('click', () => open(video));
 		});
 	document.addEventListener('astro:page-load', () => initVideos());
 </script>

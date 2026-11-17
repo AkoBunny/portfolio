@@ -375,24 +375,3 @@ html:not(.js) .variants-tabs {
 	outline: 2px solid var(--accent);
 	outline-offset: 2px;
 }
-
-/* In fullscreen the frame fills the screen and the video fits inside it */
-.media-frame:fullscreen {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	max-width: none;
-	background: #000;
-}
-
-.media .media-frame:fullscreen video {
-	width: 100%;
-	height: 100%;
-	max-width: none;
-	aspect-ratio: auto;
-	border: 0;
-	border-radius: 0;
-	background: #000;
-	object-fit: contain;
-	cursor: zoom-out;
-}
